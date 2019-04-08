@@ -1,14 +1,4 @@
-#ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
-#include <stdio.h>
-#include <chrono>
-#include <thread>
-#include "libusb.h"
-
-#define ABLETON_VENDOR_ID 0x2982
-#define PUSH2_PRODUCT_ID  0x1967
+#include "push.hpp"
 
 static libusb_device_handle* open_push2_device()
 {
@@ -87,8 +77,14 @@ static void close_push2_device(libusb_device_handle* device_handle)
   libusb_close(device_handle);
 }
 
-int main(int argc, char* argv[]) {
-  libusb_device_handle* handle = open_push2_device();
-  std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-  close_push2_device(handle);
+bool connect() {
+  push2_device_handle = open_push2_device();
+  if (push2_device_handle == NULL) {
+    return false;
+  }
+  return true;
+}
+
+void disconnect() {
+  close_push2_device(push2_device_handle);
 }
