@@ -32,7 +32,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   PRIVATE ${LIBUSB_INCLUDE_DIR})
 
 # Link libpush with libusb
-target_link_libraries(${PROJECT_NAME} ${LIBUSB_LIBRARY})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBUSB_LIBRARY})
 
 # Install libpush
 install(TARGETS ${PROJECT_NAME} EXPORT libpushConfig
