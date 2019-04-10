@@ -6,7 +6,7 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-  if (libpush_connect(true)) {
+  if (libpush_connect(false)) {
     cout << "Successfully connected" << endl;
     this_thread::sleep_for(chrono::milliseconds(5000));
     libpush_disconnect();
