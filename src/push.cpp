@@ -1,12 +1,14 @@
 #include "push.hpp"
 
+using namespace std;
+
 static libusb_device_handle* open_push2_device()
 {
   int result;
 
   if ((result = libusb_init(NULL)) < 0)
   {
-    printf("error: [%d] could not initilialize usblib\n", result);
+    cout << "error: " << result << " could not initilialize libusb" << endl;
     return NULL;
   }
 
@@ -17,25 +19,24 @@ static libusb_device_handle* open_push2_device()
   count = libusb_get_device_list(NULL, &devices);
   if (count < 0)
   {
-    printf("error: [%ld] could not get usb device list\n", count);
+    cout << "error: " << count << " could not get usb device list" << endl;
     return NULL;
   }
 
   libusb_device* device;
   libusb_device_handle* device_handle = NULL;
 
-  char ErrorMsg[128];
+  string error_message;
 
   // set message in case we get to the end of the list w/o finding a device
-  sprintf(ErrorMsg, "error: Ableton Push 2 device not found\n");
+  error_message = "Ableton Push 2 device not found";
 
   for (int i = 0; (device = devices[i]) != NULL; i++)
   {
     struct libusb_device_descriptor descriptor;
     if ((result = libusb_get_device_descriptor(device, &descriptor)) < 0)
     {
-      sprintf(ErrorMsg,
-        "error: [%d] could not get usb device descriptor\n", result);
+      error_message = "error: " + to_string(result) + " could not get usb device descriptor";
       continue;
     }
 
@@ -45,13 +46,11 @@ static libusb_device_handle* open_push2_device()
     {
       if ((result = libusb_open(device, &device_handle)) < 0)
       {
-        sprintf(ErrorMsg,
-          "error: [%d] could not open Ableton Push 2 device\n", result);
+        error_message = "error: " + to_string(result) + " could not open Ableton Push 2 device";
       }
       else if ((result = libusb_claim_interface(device_handle, 0)) < 0)
       {
-        sprintf(ErrorMsg,
-          "error: [%d] could not claim interface 0 of Push 2 device\n", result);
+        error_message = "error: " + to_string(result) + " could not claim interface 0 of Push 2 device";
         libusb_close(device_handle);
         device_handle = NULL;
       }
@@ -64,7 +63,7 @@ static libusb_device_handle* open_push2_device()
 
   if (device_handle == NULL)
   {
-    printf(ErrorMsg);
+    cout << error_message << endl;
   }
 
   libusb_free_device_list(devices, 1);
@@ -82,6 +81,7 @@ bool connect() {
   if (push2_device_handle == NULL) {
     return false;
   }
+
   return true;
 }
 

@@ -1,6 +1,7 @@
 #include "push.h"
 #include "libusb.h"
-#include <stdio.h>
+#include <iostream>
+#include <string>
 
 const unsigned int ABLETON_VENDOR_ID = 0x2982;
 const unsigned int PUSH2_PRODUCT_ID = 0x1967;
