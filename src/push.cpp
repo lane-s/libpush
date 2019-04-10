@@ -77,6 +77,13 @@ static void close_push2_device(libusb_device_handle* device_handle)
 }
 
 bool connect() {
+  try {
+    RtMidiIn midiin;
+  } catch (RtMidiError &error) {
+    cout << "Could not create midi input with RtMidi" << endl;
+    return false;
+  }
+
   push2_device_handle = open_push2_device();
   if (push2_device_handle == NULL) {
     return false;

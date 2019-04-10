@@ -1,5 +1,6 @@
 #include "push.h"
 #include "libusb.h"
+#include "RtMidi.h"
 #include <iostream>
 #include <string>
 
