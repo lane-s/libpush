@@ -2,6 +2,6 @@
 
 extern "C"
 {
-  EXPORTED bool connect();
-  EXPORTED void disconnect();
+  EXPORTED bool libpush_connect(bool use_live_port);
+  EXPORTED bool libpush_disconnect();
 }

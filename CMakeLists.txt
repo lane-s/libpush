@@ -54,7 +54,7 @@ list(APPEND PRIVATE_INCLUDES ${RTMIDI_INCLUDE_DIR})
 list(APPEND LINK_LIBS ${RTMIDI_LIBRARY})
 
 # Create push shared library
-set(SOURCE_FILES src/push.cpp)
+set(SOURCE_FILES src/push.cpp src/DisplayInterface.cpp src/MidiInterface.cpp)
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES
   VERSION ${${PROJECT_NAME}_VERSION}
