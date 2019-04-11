@@ -1,6 +1,2 @@
-CMakeFiles/
-CMakeCache.txt
 *.org
-cmake_install.cmake
-Makefile
-main
+build/*

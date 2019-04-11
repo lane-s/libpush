@@ -84,4 +84,4 @@ install(EXPORT push-export
 # Create test executable
 add_executable(main src/main.cpp)
 target_link_libraries(main ${PROJECT_NAME})
-install (TARGETS main DESTINATION bin)
+install (TARGETS main DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
