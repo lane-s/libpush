@@ -1,8 +1,14 @@
 #include "RtMidi.h"
+#include "push.h"
+#include <future>
 #include <iostream>
-#include <string>
-#include <unordered_set>
 #include <memory>
+#include <mutex>
+#include <queue>
+#include <string>
+#include <thread>
+#include <unordered_map>
+#include <unordered_set>
 
 class MidiInterface {
 public:
@@ -49,20 +55,43 @@ public:
     request_statistics = 0x1A,
   };
 
+  enum MidiMsgType {
+    unknown = -1,
+    sysex = 0,
+    note_on = 1,
+    note_off = 2,
+    cc = 3
+  };
+
+  using ByteVec = std::vector<unsigned char>;
+
   MidiInterface();
   ~MidiInterface();
 
   void connect(Port port);
   void disconnect();
-  std::vector<unsigned char> sysex_call(unsigned char command,
-                                        std::vector<unsigned char> args);
+  ByteVec sysex_call(unsigned char command, ByteVec args);
 
 private:
   std::unique_ptr<RtMidiIn> midi_in;
   std::unique_ptr<RtMidiOut> midi_out;
 
-  static std::unordered_set<unsigned char> commands_with_reply;
+  std::unordered_map<unsigned char, std::queue<ByteVec>> sysex_reply_queues;
+  std::mutex reply_queues_lock;
+
   static int find_port(RtMidi *rtmidi, Port port);
 
-  static void midi_input_callback(double delta, std::vector<unsigned char> *message, void *this_ptr);
+  static void handle_midi_input(double delta, ByteVec *message, void *this_ptr);
+  static MidiMsgType get_midi_message_type(ByteVec *message);
+
+  ByteVec get_sysex_reply(unsigned char command);
+  static void poll_for_sysex_reply(unsigned char command,
+                                   std::promise<ByteVec> p,
+                                   MidiInterface *self);
+
+  void handle_sysex_message(ByteVec *message);
+  void handle_note_on_message(ByteVec *message);
+  void handle_note_off_message(ByteVec *message);
+  void handle_cc_message(ByteVec *message);
+
 };
