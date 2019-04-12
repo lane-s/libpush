@@ -3,10 +3,10 @@
 #include <string>
 #include <unordered_set>
 
-using namespace std;
 
 class MidiInterface {
 public:
+
   enum Port {
     LIVE,
     USER
@@ -58,13 +58,11 @@ public:
 
   void connect(Port port);
   void disconnect();
-  vector<unsigned char> sysex_call(unsigned char command, vector<unsigned char> args);
+  std::vector<unsigned char> sysex_call(unsigned char command, std::vector<unsigned char> args);
 private:
-  RtMidiIn* midi_in = NULL;
-  RtMidiOut* midi_out = NULL;
+  RtMidiIn* midi_in;
+  RtMidiOut* midi_out;
 
-  static unordered_set<unsigned char> commands_with_reply;
+  static std::unordered_set<unsigned char> commands_with_reply;
   static int find_port(RtMidi* rtmidi, Port port);
-
-  void check_connection();
 };

@@ -1,5 +1,7 @@
 #include "MidiInterface.hpp"
 
+using namespace std;
+
 using Port = MidiInterface::Port;
 using LedSys = MidiInterface::LedSysex;
 using PadSys = MidiInterface::PadSysex;
@@ -14,6 +16,7 @@ const string PUSH2_USER_PORT_NAME = "Ableton Push 2 User Port";
 byteVec SYSEX_PREFIX = {0xF0, 0x00, 0x21, 0x1D, 0x01, 0x01};
 unsigned char SYSEX_SUFFIX = 0xF7;
 
+// Set of sysex commands that provide a reply
 unordered_set<unsigned char> MidiInterface::commands_with_reply = {
   LedSys::get_led_color_palette_entry,
   LedSys::get_led_brightness,
@@ -26,7 +29,7 @@ unordered_set<unsigned char> MidiInterface::commands_with_reply = {
   MiscSys::set_midi_mode,
 };
 
-MidiInterface::MidiInterface() {
+MidiInterface::MidiInterface() : midi_in(NULL), midi_out(NULL) {
 }
 
 void MidiInterface::connect(Port port) {
