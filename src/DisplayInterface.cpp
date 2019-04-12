@@ -2,6 +2,8 @@
 
 using namespace std;
 using Pixel = DisplayInterface::Pixel;
+using DeviceListPtr =
+    unique_ptr<libusb_device *, function<void(libusb_device **)>>;
 
 const unsigned int ABLETON_VENDOR_ID = 0x2982;
 const unsigned int PUSH2_PRODUCT_ID = 0x1967;
@@ -38,22 +40,31 @@ void DisplayInterface::connect() {
   }
 }
 
-libusb_device_handle *DisplayInterface::find_device(unsigned int PRODUCT_ID,
-                                                    unsigned int VENDOR_ID) {
+libusb_device **DisplayInterface::get_device_list() {
   libusb_device **devices;
-  libusb_device_handle *device_handle = NULL;
-
   ssize_t count = libusb_get_device_list(NULL, &devices);
   if (count < 0) {
     throw runtime_error(to_string(count) +
                         " could not get the usb device list");
   }
 
+  return devices;
+}
+
+libusb_device_handle *DisplayInterface::find_device(unsigned int PRODUCT_ID,
+                                                    unsigned int VENDOR_ID) {
+
+  DeviceListPtr devices(get_device_list(), [](libusb_device **device_list) {
+    libusb_free_device_list(device_list, 1);
+  });
+
+  libusb_device_handle* device_handle;
+
   try {
     libusb_device *device;
     int result;
 
-    for (int i = 0; (device = devices[i]) != NULL; i++) {
+    for (int i = 0; (device = devices.get()[i]) != NULL; i++) {
       struct libusb_device_descriptor descriptor;
       if ((result = libusb_get_device_descriptor(device, &descriptor)) < 0) {
         continue;
@@ -76,11 +87,9 @@ libusb_device_handle *DisplayInterface::find_device(unsigned int PRODUCT_ID,
       }
     }
   } catch (exception &ex) {
-    libusb_free_device_list(devices, 1);
     throw runtime_error(ex.what());
   }
 
-  libusb_free_device_list(devices, 1);
   return device_handle;
 }
 
