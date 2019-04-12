@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <unordered_set>
+#include <memory>
 
 class MidiInterface {
 public:
@@ -57,9 +58,11 @@ public:
                                         std::vector<unsigned char> args);
 
 private:
-  RtMidiIn *midi_in;
-  RtMidiOut *midi_out;
+  std::unique_ptr<RtMidiIn> midi_in;
+  std::unique_ptr<RtMidiOut> midi_out;
 
   static std::unordered_set<unsigned char> commands_with_reply;
   static int find_port(RtMidi *rtmidi, Port port);
+
+  static void midi_input_callback(double delta, std::vector<unsigned char> *message, void *this_ptr);
 };

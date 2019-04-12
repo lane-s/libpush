@@ -29,18 +29,18 @@ unordered_set<unsigned char> MidiInterface::commands_with_reply = {
     MiscSys::set_midi_mode,
 };
 
-MidiInterface::MidiInterface() : midi_in(NULL), midi_out(NULL) {}
+MidiInterface::MidiInterface() : midi_in(nullptr), midi_out(nullptr) {}
 
 void MidiInterface::connect(Port port) {
   if (this->midi_in || this->midi_out) {
     throw runtime_error("Can't connect to Push midi port if already connected");
   }
 
-  this->midi_in = new RtMidiIn();
-  this->midi_out = new RtMidiOut();
+  this->midi_in = make_unique<RtMidiIn>();
+  this->midi_out = make_unique<RtMidiOut>();
 
-  int in_port = MidiInterface::find_port(this->midi_in, port);
-  int out_port = MidiInterface::find_port(this->midi_out, port);
+  int in_port = MidiInterface::find_port(this->midi_in.get(), port);
+  int out_port = MidiInterface::find_port(this->midi_out.get(), port);
 
   if (in_port == -1 || out_port == -1) {
     throw runtime_error(
@@ -48,6 +48,9 @@ void MidiInterface::connect(Port port) {
   }
 
   this->midi_in->openPort(in_port);
+  this->midi_in->setCallback(&MidiInterface::midi_input_callback, this);
+  this->midi_in->ignoreTypes(false, true, true);
+
   this->midi_out->openPort(out_port);
   this->sysex_call(MiscSys::set_display_brightness, {0x7F, 0x01});
   cout << "Brightness message sent" << endl;
@@ -73,8 +76,8 @@ void MidiInterface::disconnect() {
         "Can't disconnect from Push midi port unless already connected");
   }
 
-  delete this->midi_in;
-  delete this->midi_out;
+  this->midi_in.reset(nullptr);
+  this->midi_out.reset(nullptr);
 }
 
 byteVec MidiInterface::sysex_call(unsigned char command, byteVec args) {
