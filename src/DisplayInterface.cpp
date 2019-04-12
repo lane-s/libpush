@@ -2,6 +2,7 @@
 
 using namespace std;
 using Pixel = DisplayInterface::Pixel;
+using DeviceHandlePtr = DisplayInterface::DeviceHandlePtr;
 using DeviceListPtr =
     unique_ptr<libusb_device *, function<void(libusb_device **)>>;
 
@@ -19,7 +20,7 @@ const unsigned char signal_shaping_pattern[signal_shaping_pattern_len] = {
 const unsigned char PUSH2_BULK_EP_OUT = 0x01;
 const unsigned int TRANSFER_TIMEOUT = 500;
 
-DisplayInterface::DisplayInterface() : push2_handle(NULL) {}
+DisplayInterface::DisplayInterface() : push2_handle(nullptr) {}
 
 void DisplayInterface::connect() {
   if (this->push2_handle) {
@@ -33,11 +34,53 @@ void DisplayInterface::connect() {
 
   libusb_set_debug(NULL, LIBUSB_LOG_LEVEL_ERROR);
 
-  this->push2_handle = this->find_device(PUSH2_PRODUCT_ID, ABLETON_VENDOR_ID);
+  this->push2_handle =
+      DeviceHandlePtr(this->find_device(PUSH2_PRODUCT_ID, ABLETON_VENDOR_ID),
+                      [](libusb_device_handle *handle) {
+                        libusb_release_interface(handle, 0);
+                        libusb_close(handle);
+                      });
 
-  if (this->push2_handle == NULL) {
+  if (!this->push2_handle) {
     throw runtime_error("Ableton Push 2 Device Not Found");
   }
+}
+
+libusb_device_handle *DisplayInterface::find_device(unsigned int PRODUCT_ID,
+                                                    unsigned int VENDOR_ID) {
+
+  DeviceListPtr devices(get_device_list(), [](libusb_device **device_list) {
+    libusb_free_device_list(device_list, 1);
+  });
+
+  libusb_device_handle *device_handle;
+  libusb_device *device;
+  int result;
+
+  for (int i = 0; (device = devices.get()[i]) != NULL; i++) {
+    struct libusb_device_descriptor descriptor;
+    if ((result = libusb_get_device_descriptor(device, &descriptor)) < 0) {
+      continue;
+    }
+
+    if (descriptor.bDeviceClass == LIBUSB_CLASS_PER_INTERFACE &&
+        descriptor.idVendor == VENDOR_ID &&
+        descriptor.idProduct == PRODUCT_ID) {
+      if ((result = libusb_open(device, &device_handle)) < 0) {
+        throw runtime_error("error: " + to_string(result) +
+                            " could not open Ableton Push 2 device");
+      } else if ((result = libusb_claim_interface(device_handle, 0)) < 0) {
+        libusb_close(device_handle);
+        device_handle = NULL;
+        throw runtime_error("error: " + to_string(result) +
+                            " could not claim interface 0 of Push 2 device");
+      } else {
+        break; // successfully opened
+      }
+    }
+  }
+
+  return device_handle;
 }
 
 libusb_device **DisplayInterface::get_device_list() {
@@ -51,52 +94,9 @@ libusb_device **DisplayInterface::get_device_list() {
   return devices;
 }
 
-libusb_device_handle *DisplayInterface::find_device(unsigned int PRODUCT_ID,
-                                                    unsigned int VENDOR_ID) {
-
-  DeviceListPtr devices(get_device_list(), [](libusb_device **device_list) {
-    libusb_free_device_list(device_list, 1);
-  });
-
-  libusb_device_handle* device_handle;
-
-  try {
-    libusb_device *device;
-    int result;
-
-    for (int i = 0; (device = devices.get()[i]) != NULL; i++) {
-      struct libusb_device_descriptor descriptor;
-      if ((result = libusb_get_device_descriptor(device, &descriptor)) < 0) {
-        continue;
-      }
-
-      if (descriptor.bDeviceClass == LIBUSB_CLASS_PER_INTERFACE &&
-          descriptor.idVendor == VENDOR_ID &&
-          descriptor.idProduct == PRODUCT_ID) {
-        if ((result = libusb_open(device, &device_handle)) < 0) {
-          throw runtime_error("error: " + to_string(result) +
-                              " could not open Ableton Push 2 device");
-        } else if ((result = libusb_claim_interface(device_handle, 0)) < 0) {
-          libusb_close(device_handle);
-          device_handle = NULL;
-          throw runtime_error("error: " + to_string(result) +
-                              " could not claim interface 0 of Push 2 device");
-        } else {
-          break; // successfully opened
-        }
-      }
-    }
-  } catch (exception &ex) {
-    throw runtime_error(ex.what());
-  }
-
-  return device_handle;
-}
-
 void DisplayInterface::disconnect() {
   if (this->push2_handle) {
-    libusb_release_interface(this->push2_handle, 0);
-    libusb_close(this->push2_handle);
+    this->push2_handle.reset(nullptr);
   } else {
     throw runtime_error(
         "Can't disconnect from Push display when not connected");
@@ -105,9 +105,9 @@ void DisplayInterface::disconnect() {
 
 void DisplayInterface::draw_frame(
     Pixel (&pixel_buffer)[DISPLAY_HEIGHT][DISPLAY_WIDTH]) {
-  int result =
-      libusb_bulk_transfer(this->push2_handle, PUSH2_BULK_EP_OUT, frame_header,
-                           sizeof(frame_header), NULL, TRANSFER_TIMEOUT);
+  int result = libusb_bulk_transfer(this->push2_handle.get(), PUSH2_BULK_EP_OUT,
+                                    frame_header, sizeof(frame_header), NULL,
+                                    TRANSFER_TIMEOUT);
 
   if (result != 0) {
     throw runtime_error("Frame header transfer failed");
@@ -116,9 +116,9 @@ void DisplayInterface::draw_frame(
   unsigned char frame_buffer[FRAME_BUFFER_LENGTH];
   DisplayInterface::fill_frame(pixel_buffer, frame_buffer);
 
-  result =
-      libusb_bulk_transfer(this->push2_handle, PUSH2_BULK_EP_OUT, frame_buffer,
-                           FRAME_BUFFER_LENGTH, NULL, TRANSFER_TIMEOUT);
+  result = libusb_bulk_transfer(this->push2_handle.get(), PUSH2_BULK_EP_OUT,
+                                frame_buffer, FRAME_BUFFER_LENGTH, NULL,
+                                TRANSFER_TIMEOUT);
 
   if (result != 0) {
     throw runtime_error("Frame buffer transfer failed");
@@ -151,8 +151,4 @@ void DisplayInterface::fill_frame(
   }
 }
 
-DisplayInterface::~DisplayInterface() {
-  if (this->push2_handle) {
-    this->disconnect();
-  }
-}
+DisplayInterface::~DisplayInterface() {}

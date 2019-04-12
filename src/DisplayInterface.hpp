@@ -19,6 +19,8 @@
 class DisplayInterface {
 public:
   using Pixel = unsigned short int;
+  using DeviceHandlePtr =
+    std::unique_ptr<libusb_device_handle, std::function<void(libusb_device_handle *)>>;
 
   DisplayInterface();
   ~DisplayInterface();
@@ -28,7 +30,7 @@ public:
   void draw_frame(Pixel (&pixel_buffer)[DISPLAY_HEIGHT][DISPLAY_WIDTH]);
 
 private:
-  libusb_device_handle *push2_handle;
+  DeviceHandlePtr push2_handle;
 
   static libusb_device_handle *find_device(unsigned int PRODUCT_ID,
                                            unsigned int VENDOR_ID);
