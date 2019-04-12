@@ -18,22 +18,21 @@ unsigned char SYSEX_SUFFIX = 0xF7;
 
 // Set of sysex commands that provide a reply
 unordered_set<unsigned char> MidiInterface::commands_with_reply = {
-  LedSys::get_led_color_palette_entry,
-  LedSys::get_led_brightness,
-  LedSys::get_led_white_balance,
-  PadSys::get_aftertouch_mode,
-  PadSys::get_pad_velocity_curve_entry,
-  PadSys::get_selected_pad_settings,
-  PedalSys::sample_pedal_data,
-  MiscSys::get_display_brightness,
-  MiscSys::set_midi_mode,
+    LedSys::get_led_color_palette_entry,
+    LedSys::get_led_brightness,
+    LedSys::get_led_white_balance,
+    PadSys::get_aftertouch_mode,
+    PadSys::get_pad_velocity_curve_entry,
+    PadSys::get_selected_pad_settings,
+    PedalSys::sample_pedal_data,
+    MiscSys::get_display_brightness,
+    MiscSys::set_midi_mode,
 };
 
-MidiInterface::MidiInterface() : midi_in(NULL), midi_out(NULL) {
-}
+MidiInterface::MidiInterface() : midi_in(NULL), midi_out(NULL) {}
 
 void MidiInterface::connect(Port port) {
-  if(this->midi_in || this->midi_out) {
+  if (this->midi_in || this->midi_out) {
     throw runtime_error("Can't connect to Push midi port if already connected");
   }
 
@@ -44,7 +43,8 @@ void MidiInterface::connect(Port port) {
   int out_port = MidiInterface::find_port(this->midi_out, port);
 
   if (in_port == -1 || out_port == -1) {
-    throw runtime_error("Can't find Push midi inputs and outputs for chosen port");
+    throw runtime_error(
+        "Can't find Push midi inputs and outputs for chosen port");
   }
 
   this->midi_in->openPort(in_port);
@@ -53,10 +53,10 @@ void MidiInterface::connect(Port port) {
   cout << "Brightness message sent" << endl;
 }
 
-int MidiInterface::find_port(RtMidi* rtmidi, Port port) {
+int MidiInterface::find_port(RtMidi *rtmidi, Port port) {
   unsigned int port_count = rtmidi->getPortCount();
   string port_name;
-  for(unsigned int i = 0; i < port_count; ++i) {
+  for (unsigned int i = 0; i < port_count; ++i) {
     port_name = rtmidi->getPortName(i);
     if ((port_name == PUSH2_LIVE_PORT_NAME && port == Port::LIVE) ||
         (port_name == PUSH2_USER_PORT_NAME && port == Port::USER)) {
@@ -68,8 +68,9 @@ int MidiInterface::find_port(RtMidi* rtmidi, Port port) {
 }
 
 void MidiInterface::disconnect() {
-  if(!this->midi_in || !this->midi_out) {
-    throw runtime_error("Can't disconnect from Push midi port unless already connected");
+  if (!this->midi_in || !this->midi_out) {
+    throw runtime_error(
+        "Can't disconnect from Push midi port unless already connected");
   }
 
   delete this->midi_in;
@@ -77,7 +78,7 @@ void MidiInterface::disconnect() {
 }
 
 byteVec MidiInterface::sysex_call(unsigned char command, byteVec args) {
-  if(!this->midi_in || !this->midi_out) {
+  if (!this->midi_in || !this->midi_out) {
     throw runtime_error("Can't make sysex call when disconnected");
   }
 
@@ -104,7 +105,7 @@ byteVec MidiInterface::sysex_call(unsigned char command, byteVec args) {
 }
 
 MidiInterface::~MidiInterface() {
-  if(this->midi_in && this->midi_out) {
+  if (this->midi_in && this->midi_out) {
     this->disconnect();
   }
 }

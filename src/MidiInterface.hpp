@@ -3,14 +3,9 @@
 #include <string>
 #include <unordered_set>
 
-
 class MidiInterface {
 public:
-
-  enum Port {
-    LIVE,
-    USER
-  };
+  enum Port { LIVE, USER };
 
   enum LedSysex : unsigned char {
     set_led_color_palette_entry = 0x03,
@@ -58,11 +53,13 @@ public:
 
   void connect(Port port);
   void disconnect();
-  std::vector<unsigned char> sysex_call(unsigned char command, std::vector<unsigned char> args);
+  std::vector<unsigned char> sysex_call(unsigned char command,
+                                        std::vector<unsigned char> args);
+
 private:
-  RtMidiIn* midi_in;
-  RtMidiOut* midi_out;
+  RtMidiIn *midi_in;
+  RtMidiOut *midi_out;
 
   static std::unordered_set<unsigned char> commands_with_reply;
-  static int find_port(RtMidi* rtmidi, Port port);
+  static int find_port(RtMidi *rtmidi, Port port);
 };

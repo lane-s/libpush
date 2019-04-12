@@ -43,7 +43,8 @@ bool libpush_disconnect() {
   }
 }
 
-void libpush_draw_frame(Pixel (&buffer)[LIBPUSH_DISPLAY_HEIGHT][LIBPUSH_DISPLAY_WIDTH]) {
+void libpush_draw_frame(
+    Pixel (&buffer)[LIBPUSH_DISPLAY_HEIGHT][LIBPUSH_DISPLAY_WIDTH]) {
   try {
     display_interface->draw_frame(buffer);
   } catch (exception &ex) {
