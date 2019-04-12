@@ -2,6 +2,7 @@
 
 using namespace std;
 using Port = MidiInterface::Port;
+using Pixel = unsigned short int;
 
 bool libpush_connect(bool use_live_port) {
   try {
@@ -39,5 +40,13 @@ bool libpush_disconnect() {
   } catch (exception &ex) {
     cerr << ex.what() << endl;
     return false;
+  }
+}
+
+void libpush_draw_frame(Pixel (&buffer)[LIBPUSH_DISPLAY_HEIGHT][LIBPUSH_DISPLAY_WIDTH]) {
+  try {
+    display_interface->draw_frame(buffer);
+  } catch (exception &ex) {
+    cerr << ex.what() << endl;
   }
 }
