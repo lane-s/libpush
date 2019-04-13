@@ -112,13 +112,8 @@ midi_msg MidiInterface::sysex_call(byte command, midi_msg args) {
 void MidiInterface::handle_midi_input(double delta, midi_msg *message,
                                       void *this_ptr) {
   MidiInterface *self = static_cast<MidiInterface *>(this_ptr);
-  for (int i : *message) {
-    cout << hex << i;
-    cout << " ";
-  }
-  cout << endl;
 
-  byte msg_type = *message->begin();
+  byte msg_type = *message->begin() & 0xF0;
   switch (msg_type) {
   case MidiMsgType::sysex:
     self->handle_sysex_message(message);

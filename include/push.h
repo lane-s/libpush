@@ -42,8 +42,9 @@ typedef enum LibPushPadEventType {
 /// \notes Pad coordinates go from top to bottom, left to right
 typedef struct LibPushPadEvent {
   LibPushPadEventType event_type;
-  int x; //< The x coordinate of the pad (0-7)
-  int y; //< The y coordinate of the pad (0-7)
+  unsigned int x; //< The x coordinate of the pad (0-7)
+  unsigned int y; //< The y coordinate of the pad (0-7)
+  unsigned int velocity;
 } LibPushPadEvent;
 typedef void (*LibPushPadCallback)(LibPushPadEvent event, void *user_data);
 

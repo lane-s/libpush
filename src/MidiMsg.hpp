@@ -9,6 +9,7 @@ enum MidiMsgType : unsigned char {
   note_on = 0x90,
   aftertouch = 0xA0,
   cc = 0xB0,
+  channel_pressure = 0xD0,
   pitch_bend = 0xE0,
 };
 

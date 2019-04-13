@@ -8,6 +8,12 @@
 using namespace std;
 using Pixel = unsigned short int;
 
+void pad_callback(LibPushPadEvent event, void* context) {
+  if (event.event_type == LibPushPadEventType::LP_PAD_PRESSED) {
+    cout << dec << "Pad at (" << event.x << ", " << event.y << ") pressed" << endl;
+  }
+}
+
 void fill_buff(
     Pixel (&pixel_buffer)[LIBPUSH_DISPLAY_HEIGHT][LIBPUSH_DISPLAY_WIDTH],
     Pixel color) {
@@ -31,8 +37,9 @@ void rgb_test() {
 }
 
 int main(int argc, char *argv[]) {
-  if (libpush_connect(LibPushPort::USER)) {
+  if (libpush_connect(LibPushPort::LIVE)) {
     cout << "Successfully connected" << endl;
+    libpush_register_pad_callback(&pad_callback, nullptr);
     rgb_test();
     this_thread::sleep_for(chrono::milliseconds(5000));
     libpush_disconnect();
