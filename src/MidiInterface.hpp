@@ -59,12 +59,13 @@ public:
     request_statistics = 0x1A,
   };
 
-  enum MidiMsgType {
-    unknown = -1,
-    sysex = 0,
-    note_on = 1,
-    note_off = 2,
-    cc = 3
+  enum MidiMsgType : unsigned char {
+    sysex = 0xF0,
+    note_off = 0x80,
+    note_on = 0x90,
+    aftertouch = 0xA0,
+    cc = 0xB0,
+    pitch_bend = 0xE0,
   };
 
   using byte_vec = std::vector<unsigned char>;
@@ -115,12 +116,6 @@ private:
   /// \effects Calls appropriate handler method on the MidiInterface instance based on the message type
   static void handle_midi_input(double delta, byte_vec *message, void *this_ptr);
 
-  /// Gets the type of a midi message
-  ///
-  /// \param message The message bytes
-  /// \returns The type of the message
-  static MidiMsgType get_midi_message_type(byte_vec *message);
-
   /// Blocks until a reply is received for a sysex command
   ///
   /// \param command The command code that is waiting for a reply
@@ -137,16 +132,16 @@ private:
                                    std::promise<byte_vec> p,
                                    MidiInterface *self);
 
-  /// Handles incoming sysex messages from Push
   void handle_sysex_message(byte_vec *message);
 
-  /// Handles incoming note on messages from Push
   void handle_note_on_message(byte_vec *message);
 
-  /// Handles incoming note off messages from Push
   void handle_note_off_message(byte_vec *message);
 
-  /// Handles incoming control change messages from Push
+  void handle_aftertouch_message(byte_vec* message);
+
+  void handle_pitch_bend_message(byte_vec* message);
+
   void handle_cc_message(byte_vec *message);
 
 };

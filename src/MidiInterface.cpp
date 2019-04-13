@@ -115,8 +115,7 @@ void MidiInterface::handle_midi_input(double delta, byte_vec *message,
   }
   cout << endl;
 
-  MidiMsgType msg_type = MidiInterface::get_midi_message_type(message);
-
+  unsigned char msg_type = *message->begin();
   switch (msg_type) {
   case MidiMsgType::sysex:
     self->handle_sysex_message(message);
@@ -127,21 +126,16 @@ void MidiInterface::handle_midi_input(double delta, byte_vec *message,
   case MidiMsgType::note_off:
     self->handle_note_off_message(message);
     break;
+  case MidiMsgType::aftertouch:
+    self->handle_aftertouch_message(message);
+    break;
   case MidiMsgType::cc:
     self->handle_cc_message(message);
     break;
+  case MidiMsgType::pitch_bend:
+    self->handle_pitch_bend_message(message);
+    break;
   }
-}
-
-MidiMsgType MidiInterface::get_midi_message_type(byte_vec *message) {
-  auto prefix_end = message->begin() + SYSEX_PREFIX.size();
-  if (equal(message->begin(), prefix_end, SYSEX_PREFIX.begin())) {
-    return MidiMsgType::sysex;
-  }
-
-  // TODO Detect other message types
-
-  return MidiMsgType::unknown;
 }
 
 byte_vec MidiInterface::get_sysex_reply(unsigned char command) {
@@ -187,7 +181,11 @@ void MidiInterface::handle_note_on_message(byte_vec *message) {}
 
 void MidiInterface::handle_note_off_message(byte_vec *message) {}
 
+void MidiInterface::handle_aftertouch_message(byte_vec *message) {}
+
 void MidiInterface::handle_cc_message(byte_vec *message) {}
+
+void MidiInterface::handle_pitch_bend_message(byte_vec *message) {}
 
 MidiInterface::~MidiInterface() {
   if (this->midi_in && this->midi_out) {
