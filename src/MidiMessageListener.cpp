@@ -14,8 +14,8 @@ MidiMessageListener<Event>::MidiMessageListener(handler_fn handler)
 
 template <typename Event>
 void MidiMessageListener<Event>::register_callback(callback cb,
-                                                   void *user_data) {
-  this->callbacks.push_back(make_tuple(cb, user_data));
+                                                   void *context) {
+  this->callbacks.push_back(make_tuple(cb, context));
 }
 
 template <typename Event>
@@ -25,8 +25,8 @@ void MidiMessageListener<Event>::handle_message(midi_msg *message) {
   if (result) {
     for (auto cb : this->callbacks) {
       callback fn = get<0>(cb);
-      void *user_data = get<1>(cb);
-      fn(*result, user_data);
+      void *context = get<1>(cb);
+      fn(*result, context);
     }
   }
 }

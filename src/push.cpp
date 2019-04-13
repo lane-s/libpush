@@ -50,37 +50,37 @@ void libpush_draw_frame(
 const string CALLBACK_ERROR_MSG = "Ensure libpush_connect is successful before "
                                   "attempting to register callbacks";
 
-void libpush_register_pad_callback(LibPushPadCallback cb, void *user_data) {
+void libpush_register_pad_callback(LibPushPadCallback cb, void *context) {
   if (!display_interface || !midi_interface) {
     cerr << CALLBACK_ERROR_MSG << endl;
     return;
   }
-  midi_interface->pad_listener.register_callback(cb, user_data);
+  midi_interface->pad_listener.register_callback(cb, context);
 }
 
 void libpush_register_button_callback(LibPushButtonCallback cb,
-                                      void *user_data) {
+                                      void *context) {
   if (!display_interface || !midi_interface) {
     cerr << CALLBACK_ERROR_MSG << endl;
     return;
   }
-  midi_interface->button_listener.register_callback(cb, user_data);
+  midi_interface->button_listener.register_callback(cb, context);
 }
 
 void libpush_register_encoder_callback(LibPushEncoderCallback cb,
-                                       void *user_data) {
+                                       void *context) {
   if (!display_interface || !midi_interface) {
     cerr << CALLBACK_ERROR_MSG << endl;
     return;
   }
-  midi_interface->encoder_listener.register_callback(cb, user_data);
+  midi_interface->encoder_listener.register_callback(cb, context);
 }
 
 void libpush_register_touch_strip_callback(LibPushTouchStripCallback cb,
-                                           void *user_data) {
+                                           void *context) {
   if (!display_interface || !midi_interface) {
     cerr << CALLBACK_ERROR_MSG << endl;
     return;
   }
-  midi_interface->touch_strip_listener.register_callback(cb, user_data);
+  midi_interface->touch_strip_listener.register_callback(cb, context);
 }

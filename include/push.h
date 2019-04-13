@@ -46,7 +46,7 @@ typedef struct LibPushPadEvent {
   unsigned int y; //< The y coordinate of the pad (0-7)
   unsigned int velocity;
 } LibPushPadEvent;
-typedef void (*LibPushPadCallback)(LibPushPadEvent event, void *user_data);
+typedef void (*LibPushPadCallback)(LibPushPadEvent event, void *context);
 
 /// All of Push's buttons
 typedef enum LibPushButton {
@@ -112,7 +112,7 @@ typedef struct LibPushButtonEvent {
   int display_button_index; //< Only relevant for buttons with type LP_DISPLAY_TOP or LP_DISPLAY_BOTTOM (0-7)
 } LibPushButtonEvent;
 typedef void (*LibPushButtonCallback)(LibPushButtonEvent event,
-                                      void *user_data);
+                                      void *context);
 
 /// Event fired when an encoder is turned
 typedef struct LibPushEncoderEvent {
@@ -121,7 +121,7 @@ typedef struct LibPushEncoderEvent {
 } LibPushEncoderEvent;
 
 typedef void (*LibPushEncoderCallback)(LibPushEncoderEvent event,
-                                       void *user_data);
+                                       void *context);
 
 typedef enum LibPushTouchStripEventType {
   LP_TOUCH_STRIP_PRESSED = 0,
@@ -135,24 +135,24 @@ typedef struct LibPushTouchStripEvent {
   double position;
 } LibPushTouchStripEvent;
 typedef void (*LibPushTouchStripCallback)(LibPushTouchStripEvent event,
-                                          void *user_data);
+                                          void *context);
 
 /// \effects Registers a function to be called when a pad is pressed, released, or aftertouch data is received
 EXPORTED void libpush_register_pad_callback(LibPushPadCallback cb,
-                                            void *user_data);
+                                            void *context);
 
 /// \effects Registers a function to be called when a button is pressed or released
 EXPORTED void libpush_register_button_callback(LibPushButtonCallback cb,
-                                               void *user_data);
+                                               void *context);
 
 /// \effects Registers a function to be called when an encoder is turned
 EXPORTED void libpush_register_encoder_callback(LibPushEncoderCallback cb,
-                                                void *user_data);
+                                                void *context);
 
 /// \effects Registers a function to be called when the touch strip is pressed, moved, or released
 EXPORTED void
 libpush_register_touch_strip_callback(LibPushTouchStripCallback cb,
-                                      void *user_data);
+                                      void *context);
 }
 
 #endif
