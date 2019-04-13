@@ -62,12 +62,12 @@ public:
     request_statistics = 0x1A,
   };
 
-  MidiMessageListener<LibPushPadCallback, LibPushPadEvent> pad_listener;
-  MidiMessageListener<LibPushButtonCallback, LibPushButtonEvent>
+  MidiMessageListener<LibPushPadEvent> pad_listener;
+  MidiMessageListener<LibPushButtonEvent>
       button_listener;
-  MidiMessageListener<LibPushEncoderCallback, LibPushEncoderEvent>
+  MidiMessageListener<LibPushEncoderEvent>
       encoder_listener;
-  MidiMessageListener<LibPushTouchStripCallback, LibPushTouchStripEvent>
+  MidiMessageListener<LibPushTouchStripEvent>
       touch_strip_listener;
 
   MidiInterface();
