@@ -67,7 +67,7 @@ public:
     cc = 3
   };
 
-  using ByteVec = std::vector<unsigned char>;
+  using byte_vec = std::vector<unsigned char>;
 
   MidiInterface();
   ~MidiInterface();
@@ -89,14 +89,14 @@ public:
   /// \param args The argument bytes for the command
   /// \returns The command's reply if it has one
   /// \effects Sends the sysex command to Push and blocks until a reply is received
-  ByteVec sysex_call(unsigned char command, ByteVec args);
+  byte_vec sysex_call(unsigned char command, byte_vec args);
 
 private:
   std::unique_ptr<RtMidiIn> midi_in;
   std::unique_ptr<RtMidiOut> midi_out;
 
   /// Stores a message queue for each type of command to hold the command's replies
-  std::unordered_map<unsigned char, std::queue<ByteVec>> sysex_reply_queues;
+  std::unordered_map<unsigned char, std::queue<byte_vec>> sysex_reply_queues;
   std::mutex reply_queues_lock;
 
   /// Find the given MIDI port
@@ -113,20 +113,20 @@ private:
   /// \param message The message bytes
   /// \param this_ptr A pointer to the instance of MidiInterface that registered the callback
   /// \effects Calls appropriate handler method on the MidiInterface instance based on the message type
-  static void handle_midi_input(double delta, ByteVec *message, void *this_ptr);
+  static void handle_midi_input(double delta, byte_vec *message, void *this_ptr);
 
   /// Gets the type of a midi message
   ///
   /// \param message The message bytes
   /// \returns The type of the message
-  static MidiMsgType get_midi_message_type(ByteVec *message);
+  static MidiMsgType get_midi_message_type(byte_vec *message);
 
   /// Blocks until a reply is received for a sysex command
   ///
   /// \param command The command code that is waiting for a reply
   /// \returns The data bytes of the command's reply
   /// \effects Creates a thread to poll for a reply, blocks until it is received
-  ByteVec get_sysex_reply(unsigned char command);
+  byte_vec get_sysex_reply(unsigned char command);
 
   /// Polls for a reply for a sysex command
   ///
@@ -134,19 +134,19 @@ private:
   /// \param p A promise to hold the reply's data bytes
   /// \param self A pointer to the MidiInterface object that is requesting the polling
   static void poll_for_sysex_reply(unsigned char command,
-                                   std::promise<ByteVec> p,
+                                   std::promise<byte_vec> p,
                                    MidiInterface *self);
 
   /// Handles incoming sysex messages from Push
-  void handle_sysex_message(ByteVec *message);
+  void handle_sysex_message(byte_vec *message);
 
   /// Handles incoming note on messages from Push
-  void handle_note_on_message(ByteVec *message);
+  void handle_note_on_message(byte_vec *message);
 
   /// Handles incoming note off messages from Push
-  void handle_note_off_message(ByteVec *message);
+  void handle_note_off_message(byte_vec *message);
 
   /// Handles incoming control change messages from Push
-  void handle_cc_message(ByteVec *message);
+  void handle_cc_message(byte_vec *message);
 
 };

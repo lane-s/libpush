@@ -7,14 +7,14 @@ using PadSys = MidiInterface::PadSysex;
 using TouchSys = MidiInterface::TouchStripSysex;
 using PedalSys = MidiInterface::PedalSysex;
 using MiscSys = MidiInterface::MiscSysex;
-using ByteVec = MidiInterface::ByteVec;
+using byte_vec = MidiInterface::byte_vec;
 using MidiMsgType = MidiInterface::MidiMsgType;
 
 const string PUSH2_LIVE_PORT_NAME = "Ableton Push 2 Live Port";
 const string PUSH2_USER_PORT_NAME = "Ableton Push 2 User Port";
 
 /// Sequence of bytes that precedes every MIDI sysex message sent or received from Push
-ByteVec SYSEX_PREFIX = {0xF0, 0x00, 0x21, 0x1D, 0x01, 0x01};
+byte_vec SYSEX_PREFIX = {0xF0, 0x00, 0x21, 0x1D, 0x01, 0x01};
 /// Byte marking the end of a sysex message
 unsigned char SYSEX_SUFFIX = 0xF7;
 
@@ -33,7 +33,7 @@ unordered_set<unsigned char> commands_with_reply = {
 
 MidiInterface::MidiInterface() : midi_in(nullptr), midi_out(nullptr) {
   for (unsigned char command : commands_with_reply) {
-    this->sysex_reply_queues[command] = queue<ByteVec>();
+    this->sysex_reply_queues[command] = queue<byte_vec>();
   }
 }
 
@@ -82,18 +82,18 @@ void MidiInterface::disconnect() {
   this->midi_out.reset(nullptr);
 }
 
-ByteVec MidiInterface::sysex_call(unsigned char command, ByteVec args) {
+byte_vec MidiInterface::sysex_call(unsigned char command, byte_vec args) {
   if (!this->midi_in || !this->midi_out) {
     throw runtime_error("Can't make sysex call when disconnected");
   }
 
-  ByteVec message(SYSEX_PREFIX);
+  byte_vec message(SYSEX_PREFIX);
   message.push_back(command);
   message.insert(message.end(), args.begin(), args.end());
   message.push_back(SYSEX_SUFFIX);
   this->midi_out->sendMessage(&message);
 
-  ByteVec reply;
+  byte_vec reply;
   if (commands_with_reply.count(command)) {
     reply = this->get_sysex_reply(command);
 
@@ -106,35 +106,7 @@ ByteVec MidiInterface::sysex_call(unsigned char command, ByteVec args) {
   return reply;
 }
 
-ByteVec MidiInterface::get_sysex_reply(unsigned char command) {
-  promise<ByteVec> p;
-  auto f = p.get_future();
-  thread listener(&poll_for_sysex_reply, command, move(p), this);
-  listener.join();
-  return f.get();
-}
-
-void MidiInterface::poll_for_sysex_reply(unsigned char command,
-                                         std::promise<ByteVec> p,
-                                         MidiInterface* self) {
-  // Poll until a message is queued for the given command
-  while (1) {
-    unique_lock<mutex> lock(self->reply_queues_lock);
-
-    auto iter = self->sysex_reply_queues.find(command);
-    if (iter != self->sysex_reply_queues.end()) {
-      queue<ByteVec> &queue = iter->second;
-      if (!queue.empty()) {
-        p.set_value(queue.front());
-        queue.pop();
-        lock.unlock();
-        break;
-      }
-    }
-  }
-}
-
-void MidiInterface::handle_midi_input(double delta, ByteVec *message,
+void MidiInterface::handle_midi_input(double delta, byte_vec *message,
                                       void *this_ptr) {
   MidiInterface *self = static_cast<MidiInterface *>(this_ptr);
   for (int i : *message) {
@@ -161,7 +133,7 @@ void MidiInterface::handle_midi_input(double delta, ByteVec *message,
   }
 }
 
-MidiMsgType MidiInterface::get_midi_message_type(ByteVec *message) {
+MidiMsgType MidiInterface::get_midi_message_type(byte_vec *message) {
   auto prefix_end = message->begin() + SYSEX_PREFIX.size();
   if (equal(message->begin(), prefix_end, SYSEX_PREFIX.begin())) {
     return MidiMsgType::sysex;
@@ -172,22 +144,50 @@ MidiMsgType MidiInterface::get_midi_message_type(ByteVec *message) {
   return MidiMsgType::unknown;
 }
 
-void MidiInterface::handle_sysex_message(ByteVec *message) {
+byte_vec MidiInterface::get_sysex_reply(unsigned char command) {
+  promise<byte_vec> p;
+  auto f = p.get_future();
+  thread listener(&poll_for_sysex_reply, command, move(p), this);
+  listener.join();
+  return f.get();
+}
+
+void MidiInterface::poll_for_sysex_reply(unsigned char command,
+                                         std::promise<byte_vec> p,
+                                         MidiInterface* self) {
+  // Poll until a message is queued for the given command
+  while (1) {
+    unique_lock<mutex> lock(self->reply_queues_lock);
+
+    auto iter = self->sysex_reply_queues.find(command);
+    if (iter != self->sysex_reply_queues.end()) {
+      queue<byte_vec> &queue = iter->second;
+      if (!queue.empty()) {
+        p.set_value(queue.front());
+        queue.pop();
+        lock.unlock();
+        break;
+      }
+    }
+  }
+}
+
+void MidiInterface::handle_sysex_message(byte_vec *message) {
   // Put the message args on the reply queue for the command
   auto prefix_end = message->begin() + SYSEX_PREFIX.size();
   unsigned char command = *prefix_end;
   if (commands_with_reply.count(command)) {
-    ByteVec args(prefix_end + 1, message->end() - 1);
+    byte_vec args(prefix_end + 1, message->end() - 1);
     lock_guard<mutex> lock(this->reply_queues_lock);
     this->sysex_reply_queues[command].push(args);
   }
 }
 
-void MidiInterface::handle_note_on_message(ByteVec *message) {}
+void MidiInterface::handle_note_on_message(byte_vec *message) {}
 
-void MidiInterface::handle_note_off_message(ByteVec *message) {}
+void MidiInterface::handle_note_off_message(byte_vec *message) {}
 
-void MidiInterface::handle_cc_message(ByteVec *message) {}
+void MidiInterface::handle_cc_message(byte_vec *message) {}
 
 MidiInterface::~MidiInterface() {
   if (this->midi_in && this->midi_out) {
