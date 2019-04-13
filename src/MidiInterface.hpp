@@ -1,3 +1,5 @@
+#include "MidiMessageListener.hpp"
+#include "MidiMessageHandlerFns.hpp"
 #include "MidiMsg.hpp"
 #include "RtMidi.h"
 #include "push.h"
@@ -60,13 +62,13 @@ public:
     request_statistics = 0x1A,
   };
 
-  MidiMessageHandler<LibPushPadCallback, LibPushPadEvent> pad_message_handler;
-  MidiMessageHandler<LibPushButtonCallback, LibPushButtonEvent>
-      button_message_handler;
-  MidiMessageHandler<LibPushEncoderCallback, LibPushEncoderEvent>
-      encoder_message_handler;
-  MidiMessageHandler<LibPushTouchStripCallback, LibPushTouchStripEvent>
-      touch_strip_message_handler;
+  MidiMessageListener<LibPushPadCallback, LibPushPadEvent> pad_listener;
+  MidiMessageListener<LibPushButtonCallback, LibPushButtonEvent>
+      button_listener;
+  MidiMessageListener<LibPushEncoderCallback, LibPushEncoderEvent>
+      encoder_listener;
+  MidiMessageListener<LibPushTouchStripCallback, LibPushTouchStripEvent>
+      touch_strip_listener;
 
   MidiInterface();
   ~MidiInterface();

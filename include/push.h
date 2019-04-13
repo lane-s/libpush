@@ -6,9 +6,7 @@
 #define LIBPUSH_DISPLAY_HEIGHT 160
 #define LIBPUSH_DISPLAY_WIDTH 960
 
-#ifdef __cplusplus
 extern "C" {
-#endif
 
 typedef enum LibPushPort { LIVE, USER } LibPushPort;
 
@@ -154,8 +152,6 @@ EXPORTED void libpush_register_encoder_callback(LibPushEncoderCallback cb,
 EXPORTED void
 libpush_register_touch_strip_callback(LibPushTouchStripCallback cb,
                                       void *user_data);
-#ifdef __cplusplus
 }
-#endif
 
 #endif

@@ -29,8 +29,13 @@ unordered_set<byte> commands_with_reply = {
     MiscSys::set_midi_mode,
 };
 
-MidiInterface::MidiInterface() : midi_in(nullptr), midi_out(nullptr) {
-  for (unsigned char command : commands_with_reply) {
+MidiInterface::MidiInterface()
+    : midi_in(nullptr), midi_out(nullptr),
+      pad_listener(&pad_message_handler_fn),
+      button_listener(&button_message_handler_fn),
+      encoder_listener(&encoder_message_handler_fn),
+      touch_strip_listener(&touch_strip_message_handler_fn) {
+  for (byte command : commands_with_reply) {
     this->sysex_reply_queues[command] = queue<midi_msg>();
   }
 }
@@ -119,6 +124,10 @@ void MidiInterface::handle_midi_input(double delta, midi_msg *message,
     self->handle_sysex_message(message);
     break;
   default:
+    self->pad_listener.handle_message(message);
+    self->button_listener.handle_message(message);
+    self->encoder_listener.handle_message(message);
+    self->touch_strip_listener.handle_message(message);
   }
 }
 
