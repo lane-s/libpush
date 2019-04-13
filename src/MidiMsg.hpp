@@ -2,6 +2,7 @@
 #define MIDI_MSG_TYPE_H
 
 #include <vector>
+#include <string>
 
 enum MidiMsgType : unsigned char {
   sysex = 0xF0,
@@ -13,6 +14,10 @@ enum MidiMsgType : unsigned char {
   pitch_bend = 0xE0,
 };
 
+using uint = unsigned int;
 using byte = unsigned char;
 using midi_msg = std::vector<byte>;
+
+uint get_midi_number(byte msg_type, midi_msg* message);
+uint get_midi_velocity(byte msg_type, midi_msg* message);
 #endif
