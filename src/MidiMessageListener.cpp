@@ -19,8 +19,8 @@ void MidiMessageListener<Event>::register_callback(callback cb,
 }
 
 template <typename Event>
-void MidiMessageListener<Event>::handle_message(midi_msg *message) {
-  byte msg_type = *message->begin() & 0xF0;
+void MidiMessageListener<Event>::handle_message(midi_msg &message) {
+  byte msg_type = *message.begin() & 0xF0;
   unique_ptr<Event> result = this->handler_func(msg_type, message);
   if (result) {
     for (auto cb : this->callbacks) {

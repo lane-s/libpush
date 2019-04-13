@@ -133,6 +133,6 @@ private:
                                    std::promise<midi_msg> p,
                                    MidiInterface *self);
 
-  void handle_sysex_message(midi_msg* message);
+  void handle_sysex_message(midi_msg &message);
 
 };

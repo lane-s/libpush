@@ -116,13 +116,13 @@ void MidiInterface::handle_midi_input(double delta, midi_msg *message,
   byte msg_type = *message->begin() & 0xF0;
   switch (msg_type) {
   case MidiMsgType::sysex:
-    self->handle_sysex_message(message);
+    self->handle_sysex_message(*message);
     break;
   default:
-    self->pad_listener.handle_message(message);
-    self->button_listener.handle_message(message);
-    self->encoder_listener.handle_message(message);
-    self->touch_strip_listener.handle_message(message);
+    self->pad_listener.handle_message(*message);
+    self->button_listener.handle_message(*message);
+    self->encoder_listener.handle_message(*message);
+    self->touch_strip_listener.handle_message(*message);
   }
 }
 
@@ -154,12 +154,12 @@ void MidiInterface::poll_for_sysex_reply(byte command,
   }
 }
 
-void MidiInterface::handle_sysex_message(midi_msg *message) {
+void MidiInterface::handle_sysex_message(midi_msg &message) {
   // Put the message args on the reply queue for the command
-  auto prefix_end = message->begin() + SYSEX_PREFIX.size();
+  auto prefix_end = message.begin() + SYSEX_PREFIX.size();
   byte command = *prefix_end;
   if (commands_with_reply.count(command)) {
-    midi_msg args(prefix_end + 1, message->end() - 1);
+    midi_msg args(prefix_end + 1, message.end() - 1);
     lock_guard<mutex> lock(this->reply_queues_lock);
     this->sysex_reply_queues[command].push(args);
   }

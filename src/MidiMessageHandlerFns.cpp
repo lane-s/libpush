@@ -3,7 +3,7 @@
 using namespace std;
 
 unique_ptr<LibPushPadEvent> pad_message_handler_fn(byte msg_type,
-                                                   midi_msg *message) {
+                                                   midi_msg &message) {
   LibPushPadEventType event_type;
   switch (msg_type) {
   case MidiMsgType::note_on:
@@ -43,16 +43,16 @@ tuple<uint, uint> pad_number_to_coordinates(uint n) {
 }
 
 unique_ptr<LibPushButtonEvent> button_message_handler_fn(byte msg_type,
-                                                         midi_msg *message) {
+                                                         midi_msg &message) {
   return nullptr;
 }
 
 unique_ptr<LibPushEncoderEvent> encoder_message_handler_fn(byte msg_type,
-                                                           midi_msg *message) {
+                                                           midi_msg &message) {
   return nullptr;
 }
 
 unique_ptr<LibPushTouchStripEvent>
-touch_strip_message_handler_fn(byte msg_type, midi_msg *message) {
+touch_strip_message_handler_fn(byte msg_type, midi_msg &message) {
   return nullptr;
 }

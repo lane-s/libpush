@@ -4,7 +4,7 @@
 
 template <typename Event> class MidiMessageListener {
 public:
-  using handler_fn = std::unique_ptr<Event> (*)(byte msg_type, midi_msg *message);
+  using handler_fn = std::unique_ptr<Event> (*)(byte msg_type, midi_msg &message);
   using callback = void (*)(Event, void*);
 
   // \param handler The message handler that translates an incoming midi message into an Event object
@@ -17,7 +17,7 @@ public:
 
   // \param message The incoming MIDI message
   // \effects Determines if the message should trigger an event. If so, construct the event object and pass it to all registered callbacks
-  void handle_message(midi_msg *message);
+  void handle_message(midi_msg &message);
 
 private:
   handler_fn handler_func;
