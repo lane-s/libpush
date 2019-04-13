@@ -1,3 +1,4 @@
+#include "MidiMsg.hpp"
 #include "RtMidi.h"
 #include "push.h"
 #include <future>
@@ -59,16 +60,6 @@ public:
     request_statistics = 0x1A,
   };
 
-  enum MidiMsgType : unsigned char {
-    sysex = 0xF0,
-    note_off = 0x80,
-    note_on = 0x90,
-    aftertouch = 0xA0,
-    cc = 0xB0,
-    pitch_bend = 0xE0,
-  };
-
-  using byte_vec = std::vector<unsigned char>;
 
   MidiInterface();
   ~MidiInterface();
@@ -90,14 +81,14 @@ public:
   /// \param args The argument bytes for the command
   /// \returns The command's reply if it has one
   /// \effects Sends the sysex command to Push and blocks until a reply is received
-  byte_vec sysex_call(unsigned char command, byte_vec args);
+  midi_msg sysex_call(unsigned char command, midi_msg args);
 
 private:
   std::unique_ptr<RtMidiIn> midi_in;
   std::unique_ptr<RtMidiOut> midi_out;
 
   /// Stores a message queue for each type of command to hold the command's replies
-  std::unordered_map<unsigned char, std::queue<byte_vec>> sysex_reply_queues;
+  std::unordered_map<unsigned char, std::queue<midi_msg>> sysex_reply_queues;
   std::mutex reply_queues_lock;
 
   /// Find the given MIDI port
@@ -114,14 +105,15 @@ private:
   /// \param message The message bytes
   /// \param this_ptr A pointer to the instance of MidiInterface that registered the callback
   /// \effects Calls appropriate handler method on the MidiInterface instance based on the message type
-  static void handle_midi_input(double delta, byte_vec *message, void *this_ptr);
+  static void handle_midi_input(double delta, midi_msg *message,
+                                void *this_ptr);
 
   /// Blocks until a reply is received for a sysex command
   ///
   /// \param command The command code that is waiting for a reply
   /// \returns The data bytes of the command's reply
   /// \effects Creates a thread to poll for a reply, blocks until it is received
-  byte_vec get_sysex_reply(unsigned char command);
+  midi_msg get_sysex_reply(unsigned char command);
 
   /// Polls for a reply for a sysex command
   ///
@@ -129,19 +121,9 @@ private:
   /// \param p A promise to hold the reply's data bytes
   /// \param self A pointer to the MidiInterface object that is requesting the polling
   static void poll_for_sysex_reply(unsigned char command,
-                                   std::promise<byte_vec> p,
+                                   std::promise<midi_msg> p,
                                    MidiInterface *self);
 
-  void handle_sysex_message(byte_vec *message);
-
-  void handle_note_on_message(byte_vec *message);
-
-  void handle_note_off_message(byte_vec *message);
-
-  void handle_aftertouch_message(byte_vec* message);
-
-  void handle_pitch_bend_message(byte_vec* message);
-
-  void handle_cc_message(byte_vec *message);
+  void handle_sysex_message(midi_msg* message);
 
 };
