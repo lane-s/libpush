@@ -19,7 +19,7 @@
 /// These can be received by registering callback functions with this class.
 class MidiInterface {
 public:
-  enum LedSysex : unsigned char {
+  enum LedSysex : byte {
     set_led_color_palette_entry = 0x03,
     get_led_color_palette_entry = 0x04,
     reapply_color_palette = 0x05,
@@ -30,7 +30,7 @@ public:
     get_led_white_balance = 0x15
   };
 
-  enum PadSysex : unsigned char {
+  enum PadSysex : byte {
     set_pad_parameters = 0x1B,
     set_aftertouch_mode = 0x1E,
     get_aftertouch_mode = 0x1F,
@@ -40,26 +40,33 @@ public:
     get_selected_pad_settings = 0x29
   };
 
-  enum TouchStripSysex : unsigned char {
+  enum TouchStripSysex : byte {
     set_touch_strip_configuration = 0x17,
     get_touch_strip_configuration = 0x18,
     set_touch_strip_leds = 0x19
   };
 
-  enum PedalSysex : unsigned char {
+  enum PedalSysex : byte {
     sample_pedal_data = 0x0C,
     configure_pedal = 0x30,
     set_pedal_curve_limits = 0x31,
     set_pedal_curve_entries = 0x32
   };
 
-  enum MiscSysex : unsigned char {
+  enum MiscSysex : byte {
     set_display_brightness = 0x08,
     get_display_brightness = 0x09,
     set_midi_mode = 0x0A,
     request_statistics = 0x1A,
   };
 
+  MidiMessageHandler<LibPushPadCallback, LibPushPadEvent> pad_message_handler;
+  MidiMessageHandler<LibPushButtonCallback, LibPushButtonEvent>
+      button_message_handler;
+  MidiMessageHandler<LibPushEncoderCallback, LibPushEncoderEvent>
+      encoder_message_handler;
+  MidiMessageHandler<LibPushTouchStripCallback, LibPushTouchStripEvent>
+      touch_strip_message_handler;
 
   MidiInterface();
   ~MidiInterface();
@@ -81,14 +88,14 @@ public:
   /// \param args The argument bytes for the command
   /// \returns The command's reply if it has one
   /// \effects Sends the sysex command to Push and blocks until a reply is received
-  midi_msg sysex_call(unsigned char command, midi_msg args);
+  midi_msg sysex_call(byte command, midi_msg args);
 
 private:
   std::unique_ptr<RtMidiIn> midi_in;
   std::unique_ptr<RtMidiOut> midi_out;
 
   /// Stores a message queue for each type of command to hold the command's replies
-  std::unordered_map<unsigned char, std::queue<midi_msg>> sysex_reply_queues;
+  std::unordered_map<byte, std::queue<midi_msg>> sysex_reply_queues;
   std::mutex reply_queues_lock;
 
   /// Find the given MIDI port
@@ -113,14 +120,14 @@ private:
   /// \param command The command code that is waiting for a reply
   /// \returns The data bytes of the command's reply
   /// \effects Creates a thread to poll for a reply, blocks until it is received
-  midi_msg get_sysex_reply(unsigned char command);
+  midi_msg get_sysex_reply(byte command);
 
   /// Polls for a reply for a sysex command
   ///
   /// \param command The command code that is waiting for a reply
   /// \param p A promise to hold the reply's data bytes
   /// \param self A pointer to the MidiInterface object that is requesting the polling
-  static void poll_for_sysex_reply(unsigned char command,
+  static void poll_for_sysex_reply(byte command,
                                    std::promise<midi_msg> p,
                                    MidiInterface *self);
 

@@ -14,10 +14,10 @@ const string PUSH2_USER_PORT_NAME = "Ableton Push 2 User Port";
 /// Sequence of bytes that precedes every MIDI sysex message sent or received from Push
 midi_msg SYSEX_PREFIX = {0xF0, 0x00, 0x21, 0x1D, 0x01, 0x01};
 /// Byte marking the end of a sysex message
-unsigned char SYSEX_SUFFIX = 0xF7;
+byte SYSEX_SUFFIX = 0xF7;
 
 /// Set of sysex commands that provide a reply
-unordered_set<unsigned char> commands_with_reply = {
+unordered_set<byte> commands_with_reply = {
     LedSys::get_led_color_palette_entry,
     LedSys::get_led_brightness,
     LedSys::get_led_white_balance,
@@ -80,7 +80,7 @@ void MidiInterface::disconnect() {
   this->midi_out.reset(nullptr);
 }
 
-midi_msg MidiInterface::sysex_call(unsigned char command, midi_msg args) {
+midi_msg MidiInterface::sysex_call(byte command, midi_msg args) {
   if (!this->midi_in || !this->midi_out) {
     throw runtime_error("Can't make sysex call when disconnected");
   }
@@ -113,7 +113,7 @@ void MidiInterface::handle_midi_input(double delta, midi_msg *message,
   }
   cout << endl;
 
-  unsigned char msg_type = *message->begin();
+  byte msg_type = *message->begin();
   switch (msg_type) {
   case MidiMsgType::sysex:
     self->handle_sysex_message(message);
@@ -122,7 +122,7 @@ void MidiInterface::handle_midi_input(double delta, midi_msg *message,
   }
 }
 
-midi_msg MidiInterface::get_sysex_reply(unsigned char command) {
+midi_msg MidiInterface::get_sysex_reply(byte command) {
   promise<midi_msg> p;
   auto f = p.get_future();
   thread listener(&poll_for_sysex_reply, command, move(p), this);
@@ -130,7 +130,7 @@ midi_msg MidiInterface::get_sysex_reply(unsigned char command) {
   return f.get();
 }
 
-void MidiInterface::poll_for_sysex_reply(unsigned char command,
+void MidiInterface::poll_for_sysex_reply(byte command,
                                          std::promise<midi_msg> p,
                                          MidiInterface *self) {
   // Poll until a message is queued for the given command
@@ -153,7 +153,7 @@ void MidiInterface::poll_for_sysex_reply(unsigned char command,
 void MidiInterface::handle_sysex_message(midi_msg *message) {
   // Put the message args on the reply queue for the command
   auto prefix_end = message->begin() + SYSEX_PREFIX.size();
-  unsigned char command = *prefix_end;
+  byte command = *prefix_end;
   if (commands_with_reply.count(command)) {
     midi_msg args(prefix_end + 1, message->end() - 1);
     lock_guard<mutex> lock(this->reply_queues_lock);
