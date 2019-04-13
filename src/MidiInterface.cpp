@@ -2,7 +2,6 @@
 
 using namespace std;
 
-using Port = MidiInterface::Port;
 using LedSys = MidiInterface::LedSysex;
 using PadSys = MidiInterface::PadSysex;
 using TouchSys = MidiInterface::TouchStripSysex;
@@ -35,7 +34,7 @@ MidiInterface::MidiInterface() : midi_in(nullptr), midi_out(nullptr) {
   }
 }
 
-void MidiInterface::connect(Port port) {
+void MidiInterface::connect(LibPushPort port) {
   if (this->midi_in || this->midi_out) {
     throw runtime_error("Can't connect to Push midi port if already connected");
   }
@@ -46,11 +45,6 @@ void MidiInterface::connect(Port port) {
   int in_port = MidiInterface::find_port(this->midi_in.get(), port);
   int out_port = MidiInterface::find_port(this->midi_out.get(), port);
 
-  if (in_port == -1 || out_port == -1) {
-    throw runtime_error(
-        "Can't find Push midi inputs and outputs for chosen port");
-  }
-
   this->midi_in->openPort(in_port);
   this->midi_in->setCallback(&MidiInterface::handle_midi_input, this);
   this->midi_in->ignoreTypes(false, true, true); // Don't ignore sysex messages
@@ -60,18 +54,19 @@ void MidiInterface::connect(Port port) {
   cout << "Brightness message sent" << endl;
 }
 
-int MidiInterface::find_port(RtMidi *rtmidi, Port port) {
+int MidiInterface::find_port(RtMidi *rtmidi, LibPushPort port) {
   unsigned int port_count = rtmidi->getPortCount();
   string port_name;
   for (unsigned int i = 0; i < port_count; ++i) {
     port_name = rtmidi->getPortName(i);
-    if ((port_name == PUSH2_LIVE_PORT_NAME && port == Port::LIVE) ||
-        (port_name == PUSH2_USER_PORT_NAME && port == Port::USER)) {
+    if ((port_name == PUSH2_LIVE_PORT_NAME && port == LibPushPort::LIVE) ||
+        (port_name == PUSH2_USER_PORT_NAME && port == LibPushPort::USER)) {
       return i;
     }
   }
 
-  return -1;
+  throw runtime_error(
+      "Can't find Push midi inputs and outputs for chosen port");
 }
 
 void MidiInterface::disconnect() {

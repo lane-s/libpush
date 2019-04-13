@@ -7,7 +7,8 @@
 
 extern "C"
 {
-  EXPORTED bool libpush_connect(bool use_live_port);
   EXPORTED bool libpush_disconnect();
   EXPORTED void libpush_draw_frame(unsigned short int (&pixel_buffer)[LIBPUSH_DISPLAY_HEIGHT][LIBPUSH_DISPLAY_WIDTH]);
+typedef enum LibPushPort { LIVE, USER } LibPushPort;
+EXPORTED bool libpush_connect(LibPushPort port);
 }

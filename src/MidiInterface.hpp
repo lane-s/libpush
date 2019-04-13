@@ -10,10 +10,14 @@
 #include <unordered_map>
 #include <unordered_set>
 
+/// A convenient interface to all Push functions that are accessed via Midi
+///
+/// Sysex messages are used for most of Push's functions.
+/// Push also sends messages back to the host when the user
+/// interacts with pads, buttons, or the touch strip.
+/// These can be received by registering callback functions with this class.
 class MidiInterface {
 public:
-  enum Port { LIVE, USER };
-
   enum LedSysex : unsigned char {
     set_led_color_palette_entry = 0x03,
     get_led_color_palette_entry = 0x04,
@@ -68,7 +72,7 @@ public:
   MidiInterface();
   ~MidiInterface();
 
-  void connect(Port port);
+  void connect(LibPushPort port);
   void disconnect();
   ByteVec sysex_call(unsigned char command, ByteVec args);
 
@@ -79,8 +83,7 @@ private:
   std::unordered_map<unsigned char, std::queue<ByteVec>> sysex_reply_queues;
   std::mutex reply_queues_lock;
 
-  static int find_port(RtMidi *rtmidi, Port port);
-
+  static int find_port(RtMidi *rtmidi, LibPushPort port);
   static void handle_midi_input(double delta, ByteVec *message, void *this_ptr);
   static MidiMsgType get_midi_message_type(ByteVec *message);
 

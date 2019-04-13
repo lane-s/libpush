@@ -1,17 +1,12 @@
 #include "push.hpp"
 
 using namespace std;
-using Port = MidiInterface::Port;
 using Pixel = unsigned short int;
 
-bool libpush_connect(bool use_live_port) {
+bool libpush_connect(LibPushPort port) {
   try {
     midi_interface = new MidiInterface();
-    if (use_live_port) {
-      midi_interface->connect(Port::LIVE);
-    } else {
-      midi_interface->connect(Port::USER);
-    }
+    midi_interface->connect(port);
   } catch (exception &ex) {
     cout << ex.what() << endl;
     return false;

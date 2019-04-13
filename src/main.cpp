@@ -31,7 +31,7 @@ void rgb_test() {
 }
 
 int main(int argc, char *argv[]) {
-  if (libpush_connect(false)) {
+  if (libpush_connect(LibPushPort::USER)) {
     cout << "Successfully connected" << endl;
     rgb_test();
     this_thread::sleep_for(chrono::milliseconds(5000));
