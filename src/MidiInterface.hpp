@@ -72,29 +72,81 @@ public:
   MidiInterface();
   ~MidiInterface();
 
+  /// \param port The MIDI port to connect to (Live or User)
+  /// \effects Connect midi_in and midi_out to Push, setup callback for incoming MIDI
+  /// \requires Not already connected
+  /// \throws An [std::runtime_error]() exception if a connection can't be made
   void connect(LibPushPort port);
+
+  /// \effects Clean up the MIDI input and output
+  /// \requires Currently connected
+  /// \throws An [std::runtime_error]() exception if not currently connected
   void disconnect();
+
+  /// Send a sysex command to Push
+  ///
+  /// \param command The command code (defined in the _Sysex enums)
+  /// \param args The argument bytes for the command
+  /// \returns The command's reply if it has one
+  /// \effects Sends the sysex command to Push and blocks until a reply is received
   ByteVec sysex_call(unsigned char command, ByteVec args);
 
 private:
   std::unique_ptr<RtMidiIn> midi_in;
   std::unique_ptr<RtMidiOut> midi_out;
 
+  /// Stores a message queue for each type of command to hold the command's replies
   std::unordered_map<unsigned char, std::queue<ByteVec>> sysex_reply_queues;
   std::mutex reply_queues_lock;
 
+  /// Find the given MIDI port
+  ///
+  /// \param rtmidi A pointer to either an RtMidiIn or RtMidiOut object
+  /// \param port The port to look for (Live or User)
+  /// \returns The index of the port
+  /// \throws An [std::runtime_error]() exception if the port is not found
   static int find_port(RtMidi *rtmidi, LibPushPort port);
+
+  /// Handler called when a MIDI message is received from Push
+  ///
+  /// \param delta Time since the last message
+  /// \param message The message bytes
+  /// \param this_ptr A pointer to the instance of MidiInterface that registered the callback
+  /// \effects Calls appropriate handler method on the MidiInterface instance based on the message type
   static void handle_midi_input(double delta, ByteVec *message, void *this_ptr);
+
+  /// Gets the type of a midi message
+  ///
+  /// \param message The message bytes
+  /// \returns The type of the message
   static MidiMsgType get_midi_message_type(ByteVec *message);
 
+  /// Blocks until a reply is received for a sysex command
+  ///
+  /// \param command The command code that is waiting for a reply
+  /// \returns The data bytes of the command's reply
+  /// \effects Creates a thread to poll for a reply, blocks until it is received
   ByteVec get_sysex_reply(unsigned char command);
+
+  /// Polls for a reply for a sysex command
+  ///
+  /// \param command The command code that is waiting for a reply
+  /// \param p A promise to hold the reply's data bytes
+  /// \param self A pointer to the MidiInterface object that is requesting the polling
   static void poll_for_sysex_reply(unsigned char command,
                                    std::promise<ByteVec> p,
                                    MidiInterface *self);
 
+  /// Handles incoming sysex messages from Push
   void handle_sysex_message(ByteVec *message);
+
+  /// Handles incoming note on messages from Push
   void handle_note_on_message(ByteVec *message);
+
+  /// Handles incoming note off messages from Push
   void handle_note_off_message(ByteVec *message);
+
+  /// Handles incoming control change messages from Push
   void handle_cc_message(ByteVec *message);
 
 };

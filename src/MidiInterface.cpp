@@ -12,10 +12,13 @@ using MidiMsgType = MidiInterface::MidiMsgType;
 
 const string PUSH2_LIVE_PORT_NAME = "Ableton Push 2 Live Port";
 const string PUSH2_USER_PORT_NAME = "Ableton Push 2 User Port";
+
+/// Sequence of bytes that precedes every MIDI sysex message sent or received from Push
 ByteVec SYSEX_PREFIX = {0xF0, 0x00, 0x21, 0x1D, 0x01, 0x01};
+/// Byte marking the end of a sysex message
 unsigned char SYSEX_SUFFIX = 0xF7;
 
-// Set of sysex commands that provide a reply
+/// Set of sysex commands that provide a reply
 unordered_set<unsigned char> commands_with_reply = {
     LedSys::get_led_color_palette_entry,
     LedSys::get_led_brightness,
@@ -163,6 +166,8 @@ MidiMsgType MidiInterface::get_midi_message_type(ByteVec *message) {
   if (equal(message->begin(), prefix_end, SYSEX_PREFIX.begin())) {
     return MidiMsgType::sysex;
   }
+
+  // TODO Detect other message types
 
   return MidiMsgType::unknown;
 }
