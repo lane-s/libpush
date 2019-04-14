@@ -178,7 +178,48 @@ double get_encoder_delta(uint val, int index) {
   return (val / full_turn) * sign; // Normalize and set sign
 }
 
+const uint TOUCH_STRIP_NN = 12;
+const uint TOUCH_STRIP_CC = 1;
+
 unique_ptr<LibPushTouchStripEvent>
 touch_strip_message_handler_fn(byte msg_type, midi_msg &message) {
-  return nullptr;
+  if (msg_type != MidiMsgType::cc && msg_type != MidiMsgType::pitch_bend &&
+      msg_type != MidiMsgType::note_on) {
+    return nullptr;
+  }
+
+  if (msg_type == MidiMsgType::note_on &&
+      get_midi_number(msg_type, message) != TOUCH_STRIP_NN) {
+    return nullptr;
+  }
+
+  if (msg_type == MidiMsgType::cc &&
+      get_midi_number(msg_type, message) != TOUCH_STRIP_CC) {
+    return nullptr;
+  }
+
+  unique_ptr<LibPushTouchStripEvent> event =
+      make_unique<LibPushTouchStripEvent>();
+  uint val = get_midi_value(msg_type, message);
+
+  switch (msg_type) {
+  case MidiMsgType::note_on:
+    event->event_type =
+        val ? LibPushTouchStripEventType::LP_TOUCH_STRIP_PRESSED
+            : LibPushTouchStripEventType::LP_TOUCH_STRIP_RELEASED;
+    event->position = 0.0;
+    break;
+  case MidiMsgType::cc:
+    event->event_type = LibPushTouchStripEventType::LP_TOUCH_STRIP_MOVED;
+    event->position = (val - 64.0) / 64.0; //(0-128) -> (-1.0 - 1.0)
+    break;
+  case MidiMsgType::pitch_bend:
+    event->event_type = LibPushTouchStripEventType::LP_TOUCH_STRIP_MOVED;
+    // The least significant bit of the pitch value is the 7th bit of the second byte
+    uint lsb = message[1] >> 6;
+    uint complete_val = lsb | (val << 1);
+    event->position = (complete_val - 128.0) / 128.0; //(0-256) -> (-1.0 - 1.0)
+    break;
+  }
+  return event;
 }

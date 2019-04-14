@@ -29,13 +29,24 @@ void button_callback(LibPushButtonEvent event, void *context) {
 }
 
 void encoder_callback(LibPushEncoderEvent event, void *context) {
-  if(event.event_type == LibPushEncoderEventType::LP_ENCODER_TOUCHED) {
+  if (event.event_type == LibPushEncoderEventType::LP_ENCODER_TOUCHED) {
     cout << "Encoder " << event.index << " touched" << endl;
-  }
-  else if (event.event_type == LibPushEncoderEventType::LP_ENCODER_RELEASED) {
+  } else if (event.event_type == LibPushEncoderEventType::LP_ENCODER_RELEASED) {
     cout << "Encoder " << event.index << " released" << endl;
   } else if (event.event_type == LibPushEncoderEventType::LP_ENCODER_MOVED) {
     cout << "Encoder " << event.index << " moved by " << event.delta << endl;
+  }
+}
+
+void touch_strip_callback(LibPushTouchStripEvent event, void *context) {
+  if (event.event_type == LibPushTouchStripEventType::LP_TOUCH_STRIP_PRESSED) {
+    cout << "Touch strip touched" << endl;
+  } else if (event.event_type ==
+             LibPushTouchStripEventType::LP_TOUCH_STRIP_RELEASED) {
+    cout << "Touch strip released" << endl;
+  } else if (event.event_type ==
+             LibPushTouchStripEventType::LP_TOUCH_STRIP_MOVED) {
+    cout << "Touch strip moved to pos: " << event.position << endl;
   }
 }
 
@@ -67,6 +78,7 @@ int main(int argc, char *argv[]) {
     libpush_register_pad_callback(&pad_callback, nullptr);
     libpush_register_button_callback(&button_callback, nullptr);
     libpush_register_encoder_callback(&encoder_callback, nullptr);
+    libpush_register_touch_strip_callback(&touch_strip_callback, nullptr);
     rgb_test();
     this_thread::sleep_for(chrono::milliseconds(5000));
     libpush_disconnect();
