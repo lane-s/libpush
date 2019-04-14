@@ -17,11 +17,11 @@ void pad_callback(LibPushPadEvent event, void *context) {
 void button_callback(LibPushButtonEvent event, void *context) {
   if (event.event_type == LibPushButtonEventType::LP_BTN_PRESSED) {
     if (event.button == LibPushButton::LP_DISPLAY_TOP_BTN) {
-      cout << "Top row button " << event.button_index << " pressed" << endl;
+      cout << "Top row button " << event.index << " pressed" << endl;
     } else if (event.button == LibPushButton::LP_DISPLAY_BOTTOM_BTN) {
-      cout << "Bottom row button " << event.button_index << " pressed" << endl;
+      cout << "Bottom row button " << event.index << " pressed" << endl;
     } else if (event.button == LibPushButton::LP_SCENE_BTN) {
-      cout << "Scene button " << event.button_index << " pressed" << endl;
+      cout << "Scene button " << event.index << " pressed" << endl;
     } else if (event.button == LibPushButton::LP_PLAY_BTN) {
       cout << "Play button pressed" << endl;
     }

@@ -102,7 +102,7 @@ typedef enum LibPushButtonEventType {
 typedef struct LibPushButtonEvent {
   LibPushButtonEventType event_type;
   LibPushButton button;
-  int button_index; //< Only relevant for buttons with type LP_DISPLAY_TOP, LP_DISPLAY_BOTTOM, or LP_SCENE_BTN(0-7)
+  int index; //< Only relevant for buttons with type LP_DISPLAY_TOP, LP_DISPLAY_BOTTOM, or LP_SCENE_BTN(0-7)
 } LibPushButtonEvent;
 typedef void (*LibPushButtonCallback)(LibPushButtonEvent event,
                                       void *context);

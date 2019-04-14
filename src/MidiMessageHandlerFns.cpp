@@ -86,18 +86,18 @@ unique_ptr<LibPushButtonEvent> button_message_handler_fn(byte msg_type,
   if (btn_number >= TOP_BTN_ROW_START &&
       btn_number < TOP_BTN_ROW_START + PAD_MATRIX_DIM) {
     event->button = LibPushButton::LP_DISPLAY_TOP_BTN;
-    event->button_index = btn_number - TOP_BTN_ROW_START;
+    event->index = btn_number - TOP_BTN_ROW_START;
   } else if (btn_number >= BOTTOM_BTN_ROW_START &&
              btn_number < BOTTOM_BTN_ROW_START + PAD_MATRIX_DIM) {
     event->button = LibPushButton::LP_DISPLAY_BOTTOM_BTN;
-    event->button_index = btn_number - BOTTOM_BTN_ROW_START;
+    event->index = btn_number - BOTTOM_BTN_ROW_START;
   } else if (btn_number <= SCENE_BTN_COL_START &&
              btn_number > SCENE_BTN_COL_START - PAD_MATRIX_DIM) {
     event->button = LibPushButton::LP_SCENE_BTN;
-    event->button_index = SCENE_BTN_COL_START - btn_number;
+    event->index = SCENE_BTN_COL_START - btn_number;
   } else if (push_btn_numbers.count(btn_number)) {
     event->button = static_cast<LibPushButton>(btn_number);
-    event->button_index = -1;
+    event->index = -1;
   } else {
     return nullptr;
   }
