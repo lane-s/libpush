@@ -107,10 +107,17 @@ typedef struct LibPushButtonEvent {
 typedef void (*LibPushButtonCallback)(LibPushButtonEvent event,
                                       void *context);
 
+typedef enum LibPushEncoderEventType {
+  LP_ENCODER_TOUCHED = 0,
+  LP_ENCODER_MOVED = 1,
+  LP_ENCODER_RELEASED = 2,
+} LibPushEncoderEventType;
+
 /// Event fired when an encoder is turned
 typedef struct LibPushEncoderEvent {
-  int index; //< Which encoder was turned (0-10)
-  double delta;
+  LibPushEncoderEventType event_type;
+  int index; //< (0-10) From left to right
+  double delta; //< Only relevant for the LP_ENCODER_MOVED event type
 } LibPushEncoderEvent;
 
 typedef void (*LibPushEncoderCallback)(LibPushEncoderEvent event,

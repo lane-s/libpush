@@ -111,9 +111,66 @@ unique_ptr<LibPushButtonEvent> button_message_handler_fn(byte msg_type,
   return event;
 }
 
+const uint TOP_LEFT_ENCODER_CC = 14;
+const uint ENCODER_CC_ROW_START = 71;
+const uint TOP_LEFT_ENCODER_NN = 10;
+const uint ENCODER_NN_ROW_START = 0;
+
 unique_ptr<LibPushEncoderEvent> encoder_message_handler_fn(byte msg_type,
                                                            midi_msg &message) {
-  return nullptr;
+  if (msg_type != MidiMsgType::cc && msg_type != MidiMsgType::note_on) {
+    return nullptr;
+  }
+
+  unique_ptr<LibPushEncoderEvent> event = make_unique<LibPushEncoderEvent>();
+
+  uint encoder_number = get_midi_number(msg_type, message);
+  uint val = get_midi_value(msg_type, message);
+  if (msg_type == MidiMsgType::cc) {
+    if (encoder_number >= TOP_LEFT_ENCODER_CC &&
+        encoder_number < TOP_LEFT_ENCODER_CC + 2) {
+      event->index = encoder_number - TOP_LEFT_ENCODER_CC;
+    } else if (encoder_number >= ENCODER_CC_ROW_START &&
+               encoder_number < ENCODER_CC_ROW_START + PAD_MATRIX_DIM + 1) {
+      event->index = encoder_number - ENCODER_CC_ROW_START + 2;
+    } else {
+      return nullptr;
+    }
+
+    event->event_type = LibPushEncoderEventType::LP_ENCODER_MOVED;
+    event->delta = get_encoder_delta(val);
+
+  } else if (msg_type == MidiMsgType::note_on) {
+    if (encoder_number <= TOP_LEFT_ENCODER_NN &&
+        encoder_number > TOP_LEFT_ENCODER_NN - 2) {
+      event->index = TOP_LEFT_ENCODER_NN - encoder_number;
+    } else if (encoder_number >= ENCODER_NN_ROW_START &&
+               encoder_number < ENCODER_NN_ROW_START + PAD_MATRIX_DIM + 1) {
+      event->index = encoder_number - ENCODER_NN_ROW_START + 2;
+    } else {
+      return nullptr;
+    }
+    event->delta = 0.0;
+
+    if (val) {
+      event->event_type = LibPushEncoderEventType::LP_ENCODER_TOUCHED;
+    } else {
+      event->event_type = LibPushEncoderEventType::LP_ENCODER_RELEASED;
+    }
+  }
+
+  return event;
+}
+
+double get_encoder_delta(uint val) {
+  int sign = (val >> 6)
+                 ? -1
+                 : 1; //The 7th bit is 1 if the value is negative, 0 otherwise
+  if (sign < 0) {
+    val = ~val + 1; // Take two's complement
+  }
+  val &= 0x7F;        //Bit mask to remove 8th bit
+  return (val / 64.0) * sign; // Normalize and set sign
 }
 
 unique_ptr<LibPushTouchStripEvent>

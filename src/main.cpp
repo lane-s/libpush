@@ -28,6 +28,17 @@ void button_callback(LibPushButtonEvent event, void *context) {
   }
 }
 
+void encoder_callback(LibPushEncoderEvent event, void *context) {
+  if(event.event_type == LibPushEncoderEventType::LP_ENCODER_TOUCHED) {
+    cout << "Encoder " << event.index << " touched" << endl;
+  }
+  else if (event.event_type == LibPushEncoderEventType::LP_ENCODER_RELEASED) {
+    cout << "Encoder " << event.index << " released" << endl;
+  } else if (event.event_type == LibPushEncoderEventType::LP_ENCODER_MOVED) {
+    cout << "Encoder " << event.index << " moved by " << event.delta << endl;
+  }
+}
+
 void fill_buff(
     Pixel (&pixel_buffer)[LIBPUSH_DISPLAY_HEIGHT][LIBPUSH_DISPLAY_WIDTH],
     Pixel color) {
@@ -55,6 +66,7 @@ int main(int argc, char *argv[]) {
     cout << "Successfully connected" << endl;
     libpush_register_pad_callback(&pad_callback, nullptr);
     libpush_register_button_callback(&button_callback, nullptr);
+    libpush_register_encoder_callback(&encoder_callback, nullptr);
     rgb_test();
     this_thread::sleep_for(chrono::milliseconds(5000));
     libpush_disconnect();
