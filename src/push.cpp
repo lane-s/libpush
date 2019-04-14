@@ -58,8 +58,7 @@ void libpush_register_pad_callback(LibPushPadCallback cb, void *context) {
   midi_interface->pad_listener.register_callback(cb, context);
 }
 
-void libpush_register_button_callback(LibPushButtonCallback cb,
-                                      void *context) {
+void libpush_register_button_callback(LibPushButtonCallback cb, void *context) {
   if (!display_interface || !midi_interface) {
     cerr << CALLBACK_ERROR_MSG << endl;
     return;

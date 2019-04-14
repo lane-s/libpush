@@ -1,5 +1,5 @@
-#include "MidiMessageListener.hpp"
 #include "MidiMessageHandlerFns.hpp"
+#include "MidiMessageListener.hpp"
 #include "MidiMsg.hpp"
 #include "RtMidi.h"
 #include "push.h"
@@ -63,12 +63,9 @@ public:
   };
 
   MidiMessageListener<LibPushPadEvent> pad_listener;
-  MidiMessageListener<LibPushButtonEvent>
-      button_listener;
-  MidiMessageListener<LibPushEncoderEvent>
-      encoder_listener;
-  MidiMessageListener<LibPushTouchStripEvent>
-      touch_strip_listener;
+  MidiMessageListener<LibPushButtonEvent> button_listener;
+  MidiMessageListener<LibPushEncoderEvent> encoder_listener;
+  MidiMessageListener<LibPushTouchStripEvent> touch_strip_listener;
 
   MidiInterface();
   ~MidiInterface();
@@ -129,10 +126,8 @@ private:
   /// \param command The command code that is waiting for a reply
   /// \param p A promise to hold the reply's data bytes
   /// \param self A pointer to the MidiInterface object that is requesting the polling
-  static void poll_for_sysex_reply(byte command,
-                                   std::promise<midi_msg> p,
+  static void poll_for_sysex_reply(byte command, std::promise<midi_msg> p,
                                    MidiInterface *self);
 
   void handle_sysex_message(midi_msg &message);
-
 };

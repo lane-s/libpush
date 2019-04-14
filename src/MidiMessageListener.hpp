@@ -1,11 +1,12 @@
-#include "push.h"
 #include "MidiMsg.hpp"
+#include "push.h"
 #include <memory>
 
 template <typename Event> class MidiMessageListener {
 public:
-  using handler_fn = std::unique_ptr<Event> (*)(byte msg_type, midi_msg &message);
-  using callback = void (*)(Event, void*);
+  using handler_fn = std::unique_ptr<Event> (*)(byte msg_type,
+                                                midi_msg &message);
+  using callback = void (*)(Event, void *);
 
   // \param handler The message handler that translates an incoming midi message into an Event object
   MidiMessageListener(handler_fn handler);
@@ -21,5 +22,5 @@ public:
 
 private:
   handler_fn handler_func;
-  std::vector<std::tuple<callback, void*>> callbacks;
+  std::vector<std::tuple<callback, void *>> callbacks;
 };

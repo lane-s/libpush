@@ -63,7 +63,7 @@ typedef enum LibPushButton {
   LP_DELETE_BTN = 118,
   LP_TAP_TEMPO_BTN = 3,
   LP_METRONOME_BTN = 9,
-  LP_DISPLAY_TOP_BTN = 0, //< The row of 8 buttons above the display
+  LP_DISPLAY_TOP_BTN = 0,    //< The row of 8 buttons above the display
   LP_DISPLAY_BOTTOM_BTN = 1, //< The row of 8 buttons below the display
   LP_SCENE_BTN = 2, //< The column of 8 buttons to the right of the pad grid
   LP_ADD_DEVICE_BTN = 52,
@@ -104,8 +104,7 @@ typedef struct LibPushButtonEvent {
   LibPushButton button;
   int index; //< Only relevant for buttons with type LP_DISPLAY_TOP, LP_DISPLAY_BOTTOM, or LP_SCENE_BTN(0-7)
 } LibPushButtonEvent;
-typedef void (*LibPushButtonCallback)(LibPushButtonEvent event,
-                                      void *context);
+typedef void (*LibPushButtonCallback)(LibPushButtonEvent event, void *context);
 
 typedef enum LibPushEncoderEventType {
   LP_ENCODER_TOUCHED = 0,
@@ -117,7 +116,8 @@ typedef enum LibPushEncoderEventType {
 typedef struct LibPushEncoderEvent {
   LibPushEncoderEventType event_type;
   int index; //< (0-10) From left to right
-  double delta; //< (-1.0 - 1.0) 1 indicates a full turn. Only relevant for the LP_ENCODER_MOVED event type.
+  double
+      delta; //< (-1.0 - 1.0) 1 indicates a full turn. Only relevant for the LP_ENCODER_MOVED event type.
 } LibPushEncoderEvent;
 
 typedef void (*LibPushEncoderCallback)(LibPushEncoderEvent event,

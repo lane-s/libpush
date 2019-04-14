@@ -13,8 +13,7 @@ MidiMessageListener<Event>::MidiMessageListener(handler_fn handler)
     : handler_func(handler) {}
 
 template <typename Event>
-void MidiMessageListener<Event>::register_callback(callback cb,
-                                                   void *context) {
+void MidiMessageListener<Event>::register_callback(callback cb, void *context) {
   this->callbacks.push_back(make_tuple(cb, context));
 }
 

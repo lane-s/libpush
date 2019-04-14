@@ -1,6 +1,6 @@
 #include "MidiMessageHandlerFns.hpp"
-#include <unordered_set>
 #include <iostream>
+#include <unordered_set>
 
 using namespace std;
 
@@ -172,7 +172,7 @@ double get_encoder_delta(uint val, int index) {
   if (sign < 0) {
     val = ~val + 1; // Take two's complement
   }
-  val &= 0x7F;        //Bit mask to remove 8th bit
+  val &= 0x7F; //Bit mask to remove 8th bit
 
   double full_turn = index > 0 ? ENCODER_FULL_TURN : TEMPO_ENCODER_FULL_TURN;
   return (val / full_turn) * sign; // Normalize and set sign

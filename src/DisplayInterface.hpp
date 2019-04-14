@@ -1,23 +1,23 @@
 #include "libusb.h"
 #include "push.h"
 #include <exception>
-#include <iostream>
-#include <string>
-#include <memory>
 #include <functional>
+#include <iostream>
+#include <memory>
+#include <string>
 
 #ifndef LIBPUSH_DISPLAY_CONSTANTS
-  #define DISPLAY_CONSTANTS
-  #define DISPLAY_HEIGHT LIBPUSH_DISPLAY_HEIGHT
-  #define DISPLAY_WIDTH LIBPUSH_DISPLAY_WIDTH
+#define DISPLAY_CONSTANTS
+#define DISPLAY_HEIGHT LIBPUSH_DISPLAY_HEIGHT
+#define DISPLAY_WIDTH LIBPUSH_DISPLAY_WIDTH
 /// Since pixels are 16 bits, each one requires 2 bytes in the frame buffer
-  #define DISPLAY_WIDTH_BYTES (DISPLAY_WIDTH * 2)
+#define DISPLAY_WIDTH_BYTES (DISPLAY_WIDTH * 2)
 /// Extra bytes added to the end of each row in the frame buffer
-  #define DISPLAY_PADDING_BYTES 128
+#define DISPLAY_PADDING_BYTES 128
 /// The length of a single row of pixels in bytes
-  #define ROW_LENGTH (DISPLAY_WIDTH_BYTES + DISPLAY_PADDING_BYTES)
+#define ROW_LENGTH (DISPLAY_WIDTH_BYTES + DISPLAY_PADDING_BYTES)
 /// The total length of a complete frame buffer
-  #define FRAME_BUFFER_LENGTH (ROW_LENGTH * (DISPLAY_HEIGHT * 2))
+#define FRAME_BUFFER_LENGTH (ROW_LENGTH * (DISPLAY_HEIGHT * 2))
 #endif
 
 /// A convenient interface to Push's display
@@ -30,7 +30,8 @@ class DisplayInterface {
 public:
   using Pixel = unsigned short int;
   using DeviceHandlePtr =
-    std::unique_ptr<libusb_device_handle, std::function<void(libusb_device_handle *)>>;
+      std::unique_ptr<libusb_device_handle,
+                      std::function<void(libusb_device_handle *)>>;
 
   DisplayInterface();
   ~DisplayInterface();

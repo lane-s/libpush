@@ -1,8 +1,8 @@
 #ifndef MIDI_MSG_TYPE_H
 #define MIDI_MSG_TYPE_H
 
-#include <vector>
 #include <string>
+#include <vector>
 
 enum MidiMsgType : unsigned char {
   sysex = 0xF0,

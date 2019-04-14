@@ -128,8 +128,7 @@ midi_msg MidiInterface::get_sysex_reply(byte command) {
   return f.get();
 }
 
-void MidiInterface::poll_for_sysex_reply(byte command,
-                                         std::promise<midi_msg> p,
+void MidiInterface::poll_for_sysex_reply(byte command, std::promise<midi_msg> p,
                                          MidiInterface *self) {
   // Poll until a message is queued for the given command
   while (1) {
