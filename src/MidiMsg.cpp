@@ -13,7 +13,7 @@ uint get_midi_number(byte msg_type, midi_msg &message) {
   }
 }
 
-uint get_midi_velocity(byte msg_type, midi_msg &message) {
+uint get_midi_value(byte msg_type, midi_msg &message) {
   switch (msg_type) {
   case MidiMsgType::note_on:
   case MidiMsgType::note_off:

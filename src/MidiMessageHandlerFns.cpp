@@ -23,7 +23,7 @@ unique_ptr<LibPushPadEvent> pad_message_handler_fn(byte msg_type,
 
   unique_ptr<LibPushPadEvent> event = make_unique<LibPushPadEvent>();
   event->event_type = event_type;
-  event->velocity = get_midi_velocity(msg_type, message);
+  event->velocity = get_midi_value(msg_type, message);
 
   int pad_number = get_midi_number(msg_type, message);
   auto pad_coords = pad_number_to_coordinates(pad_number);
@@ -73,7 +73,7 @@ unique_ptr<LibPushButtonEvent> button_message_handler_fn(byte msg_type,
     event->button_index = -1;
   }
 
-  if (get_midi_velocity(msg_type, message)) {
+  if (get_midi_value(msg_type, message)) {
     event->event_type = LibPushButtonEventType::LP_BTN_PRESSED;
   } else {
     event->event_type = LibPushButtonEventType::LP_BTN_RELEASED;
