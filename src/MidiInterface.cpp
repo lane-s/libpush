@@ -8,8 +8,8 @@ using TouchSys = MidiInterface::TouchStripSysex;
 using PedalSys = MidiInterface::PedalSysex;
 using MiscSys = MidiInterface::MiscSysex;
 
-const string PUSH2_LIVE_PORT_NAME = "Ableton Push 2 Live Port";
-const string PUSH2_USER_PORT_NAME = "Ableton Push 2 User Port";
+const string COMMON_PORT_NAME = "Ableton Push 2";
+const vector<string> USER_PORT_STRINGS = {":1", "MIDI", "User"};
 
 /// Sequence of bytes that precedes every MIDI sysex message sent or received from Push
 midi_msg SYSEX_PREFIX = {0xF0, 0x00, 0x21, 0x1D, 0x01, 0x01};
@@ -60,14 +60,28 @@ void MidiInterface::connect(LibPushPort port) {
   cout << "Brightness message sent" << endl;
 }
 
+bool string_contains_any_substring(string s, vector<string> substrings) {
+  for (auto substr : substrings) {
+    if (s.find(substr) != string::npos) {
+      return true;
+    }
+  }
+  return false;
+}
+
 int MidiInterface::find_port(RtMidi *rtmidi, LibPushPort port) {
   unsigned int port_count = rtmidi->getPortCount();
   string port_name;
   for (unsigned int i = 0; i < port_count; ++i) {
     port_name = rtmidi->getPortName(i);
-    if ((port_name == PUSH2_LIVE_PORT_NAME && port == LibPushPort::LIVE) ||
-        (port_name == PUSH2_USER_PORT_NAME && port == LibPushPort::USER)) {
-      return i;
+    if (port_name.find(COMMON_PORT_NAME) != string::npos) {
+      if (port == LibPushPort::USER &&
+          string_contains_any_substring(port_name, USER_PORT_STRINGS)) {
+        return i;
+      } else if (port == LibPushPort::LIVE &&
+                 !string_contains_any_substring(port_name, USER_PORT_STRINGS)) {
+        return i;
+      }
     }
   }
 
