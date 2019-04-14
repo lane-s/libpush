@@ -8,9 +8,23 @@
 using namespace std;
 using Pixel = unsigned short int;
 
-void pad_callback(LibPushPadEvent event, void* context) {
+void pad_callback(LibPushPadEvent event, void *context) {
   if (event.event_type == LibPushPadEventType::LP_PAD_PRESSED) {
-    cout << dec << "Pad at (" << event.x << ", " << event.y << ") pressed" << endl;
+    cout << "Pad at (" << event.x << ", " << event.y << ") pressed" << endl;
+  }
+}
+
+void button_callback(LibPushButtonEvent event, void *context) {
+  if (event.event_type == LibPushButtonEventType::LP_BTN_PRESSED) {
+    if (event.button == LibPushButton::LP_DISPLAY_TOP_BTN) {
+      cout << "Top row button " << event.button_index << " pressed" << endl;
+    } else if (event.button == LibPushButton::LP_DISPLAY_BOTTOM_BTN) {
+      cout << "Bottom row button " << event.button_index << " pressed" << endl;
+    } else if (event.button == LibPushButton::LP_SCENE_BTN) {
+      cout << "Scene button " << event.button_index << " pressed" << endl;
+    } else if (event.button == LibPushButton::LP_PLAY_BTN) {
+      cout << "Play button pressed" << endl;
+    }
   }
 }
 
@@ -40,6 +54,7 @@ int main(int argc, char *argv[]) {
   if (libpush_connect(LibPushPort::LIVE)) {
     cout << "Successfully connected" << endl;
     libpush_register_pad_callback(&pad_callback, nullptr);
+    libpush_register_button_callback(&button_callback, nullptr);
     rgb_test();
     this_thread::sleep_for(chrono::milliseconds(5000));
     libpush_disconnect();

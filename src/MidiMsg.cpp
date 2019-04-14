@@ -18,6 +18,7 @@ uint get_midi_velocity(byte msg_type, midi_msg &message) {
   case MidiMsgType::note_on:
   case MidiMsgType::note_off:
   case MidiMsgType::aftertouch:
+  case MidiMsgType::cc:
     return message[2];
   case MidiMsgType::channel_pressure:
     return message[1];

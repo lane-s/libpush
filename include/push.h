@@ -65,17 +65,10 @@ typedef enum LibPushButton {
   LP_METRONOME_BTN = 9,
   LP_DISPLAY_TOP_BTN = 0, //< The row of 8 buttons above the display
   LP_DISPLAY_BOTTOM_BTN = 1, //< The row of 8 buttons below the display
+  LP_SCENE_BTN = 2, //< The column of 8 buttons to the right of the pad grid
   LP_ADD_DEVICE_BTN = 52,
   LP_ADD_TRACK_BTN = 53,
   LP_MASTER_BTN = 28,
-  LP_32_T_BTN = 43,
-  LP_32_BTN = 42,
-  LP_16_T_BTN = 41,
-  LP_16_BTN = 40,
-  LP_8_T_BTN = 39,
-  LP_8_BTN = 38,
-  LP_4_T_BTN = 37,
-  LP_4_BTN = 36,
   LP_SETUP_BTN = 30,
   LP_USER_BTN = 59,
   LP_DEVICE_BTN = 110,
@@ -108,8 +101,8 @@ typedef enum LibPushButtonEventType {
 /// Event fired when a button is pressed or released
 typedef struct LibPushButtonEvent {
   LibPushButtonEventType event_type;
-  LibPushButton button_id;
-  int display_button_index; //< Only relevant for buttons with type LP_DISPLAY_TOP or LP_DISPLAY_BOTTOM (0-7)
+  LibPushButton button;
+  int button_index; //< Only relevant for buttons with type LP_DISPLAY_TOP, LP_DISPLAY_BOTTOM, or LP_SCENE_BTN(0-7)
 } LibPushButtonEvent;
 typedef void (*LibPushButtonCallback)(LibPushButtonEvent event,
                                       void *context);

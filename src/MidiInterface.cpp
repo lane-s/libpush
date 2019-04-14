@@ -99,12 +99,6 @@ midi_msg MidiInterface::sysex_call(byte command, midi_msg args) {
   midi_msg reply;
   if (commands_with_reply.count(command)) {
     reply = this->get_sysex_reply(command);
-
-    for (int i : reply) {
-      cout << hex << i;
-      cout << " ";
-    }
-    cout << endl;
   }
   return reply;
 }
