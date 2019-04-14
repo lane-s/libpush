@@ -121,16 +121,20 @@ void MidiInterface::handle_midi_input(double delta, midi_msg *message,
                                       void *this_ptr) {
   MidiInterface *self = static_cast<MidiInterface *>(this_ptr);
 
-  byte msg_type = *message->begin() & 0xF0;
-  switch (msg_type) {
-  case MidiMsgType::sysex:
-    self->handle_sysex_message(*message);
-    break;
-  default:
-    self->pad_listener.handle_message(*message);
-    self->button_listener.handle_message(*message);
-    self->encoder_listener.handle_message(*message);
-    self->touch_strip_listener.handle_message(*message);
+  try {
+    byte msg_type = *message->begin() & 0xF0;
+    switch (msg_type) {
+    case MidiMsgType::sysex:
+      self->handle_sysex_message(*message);
+      break;
+    default:
+      self->pad_listener.handle_message(*message);
+      self->button_listener.handle_message(*message);
+      self->encoder_listener.handle_message(*message);
+      self->touch_strip_listener.handle_message(*message);
+    }
+  } catch (exception &ex) {
+    cout << "Exception on MIDI thread: " << ex.what() << endl;
   }
 }
 
