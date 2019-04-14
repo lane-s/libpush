@@ -3,6 +3,9 @@
 
 using namespace std;
 
+const uint PAD_MATRIX_DIM = 8;
+const uint FIRST_PAD_N = 36;
+
 unique_ptr<LibPushPadEvent> pad_message_handler_fn(byte msg_type,
                                                    midi_msg &message) {
   LibPushPadEventType event_type;
@@ -20,21 +23,22 @@ unique_ptr<LibPushPadEvent> pad_message_handler_fn(byte msg_type,
   default:
     return nullptr;
   }
+  int pad_number = get_midi_number(msg_type, message);
+  if (pad_number < FIRST_PAD_N ||
+      pad_number >= FIRST_PAD_N + PAD_MATRIX_DIM * PAD_MATRIX_DIM) {
+    return nullptr;
+  }
 
   unique_ptr<LibPushPadEvent> event = make_unique<LibPushPadEvent>();
   event->event_type = event_type;
   event->velocity = get_midi_value(msg_type, message);
 
-  int pad_number = get_midi_number(msg_type, message);
   auto pad_coords = pad_number_to_coordinates(pad_number);
   event->x = get<0>(pad_coords);
   event->y = get<1>(pad_coords);
 
   return event;
 }
-
-const uint PAD_MATRIX_DIM = 8;
-const uint FIRST_PAD_N = 36;
 
 tuple<uint, uint> pad_number_to_coordinates(uint n) {
   uint x = (n - FIRST_PAD_N) % PAD_MATRIX_DIM;
