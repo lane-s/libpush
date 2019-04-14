@@ -117,7 +117,7 @@ typedef enum LibPushEncoderEventType {
 typedef struct LibPushEncoderEvent {
   LibPushEncoderEventType event_type;
   int index; //< (0-10) From left to right
-  double delta; //< Only relevant for the LP_ENCODER_MOVED event type
+  double delta; //< (-1.0 - 1.0) 1 indicates a full turn. Only relevant for the LP_ENCODER_MOVED event type.
 } LibPushEncoderEvent;
 
 typedef void (*LibPushEncoderCallback)(LibPushEncoderEvent event,

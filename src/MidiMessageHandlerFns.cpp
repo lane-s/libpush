@@ -138,7 +138,7 @@ unique_ptr<LibPushEncoderEvent> encoder_message_handler_fn(byte msg_type,
     }
 
     event->event_type = LibPushEncoderEventType::LP_ENCODER_MOVED;
-    event->delta = get_encoder_delta(val);
+    event->delta = get_encoder_delta(val, event->index);
 
   } else if (msg_type == MidiMsgType::note_on) {
     if (encoder_number <= TOP_LEFT_ENCODER_NN &&
@@ -162,7 +162,10 @@ unique_ptr<LibPushEncoderEvent> encoder_message_handler_fn(byte msg_type,
   return event;
 }
 
-double get_encoder_delta(uint val) {
+const double TEMPO_ENCODER_FULL_TURN = 18.0;
+const double ENCODER_FULL_TURN = 210.0;
+
+double get_encoder_delta(uint val, int index) {
   int sign = (val >> 6)
                  ? -1
                  : 1; //The 7th bit is 1 if the value is negative, 0 otherwise
@@ -170,7 +173,9 @@ double get_encoder_delta(uint val) {
     val = ~val + 1; // Take two's complement
   }
   val &= 0x7F;        //Bit mask to remove 8th bit
-  return (val / 64.0) * sign; // Normalize and set sign
+
+  double full_turn = index > 0 ? ENCODER_FULL_TURN : TEMPO_ENCODER_FULL_TURN;
+  return (val / full_turn) * sign; // Normalize and set sign
 }
 
 unique_ptr<LibPushTouchStripEvent>
