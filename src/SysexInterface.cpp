@@ -34,7 +34,7 @@ midi_msg SysexInterface::sysex_call(byte command, midi_msg &args) {
   midi_msg reply;
   if (commands_with_reply.count(command)) {
     reply = this->get_sysex_reply(command);
-    return midi_msg(reply.begin() + SYSEX_PREFIX.size(), reply.end() - 1);
+    return midi_msg(reply.begin() + SYSEX_PREFIX.size() + 1, reply.end() - 1);
   }
 
   return reply;
