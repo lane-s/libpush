@@ -53,7 +53,7 @@ public:
   /// \param args The argument bytes for the command
   /// \returns The command's reply if it has one
   /// \effects Sends the sysex command to Push and blocks until a reply is received
-  midi_msg sysex_call(byte command, midi_msg args);
+  midi_msg sysex_call(byte command, midi_msg &args);
 
   /// Register a command that expects a reply
   ///
@@ -72,7 +72,7 @@ private:
   /// Blocks until a reply is received for a sysex command
   ///
   /// \param command The command code that is waiting for a reply
-  /// \returns The data bytes of the command's reply
+  /// \returns The data bytes (arguments) of the command's reply
   /// \effects Creates a thread to poll for a reply, blocks until it is received
   midi_msg get_sysex_reply(byte command);
 

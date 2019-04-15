@@ -27,7 +27,7 @@ SysexInterface::SysexInterface(MidiInterface &midi)
   this->midi.register_handler(this);
 }
 
-midi_msg SysexInterface::sysex_call(byte command, midi_msg args) {
+midi_msg SysexInterface::sysex_call(byte command, midi_msg &args) {
   midi_msg message(SYSEX_PREFIX);
   message.push_back(command);
   message.insert(message.end(), args.begin(), args.end());
@@ -37,7 +37,9 @@ midi_msg SysexInterface::sysex_call(byte command, midi_msg args) {
   midi_msg reply;
   if (commands_with_reply.count(command)) {
     reply = this->get_sysex_reply(command);
+    return midi_msg(reply.begin() + SYSEX_PREFIX.size(), reply.end() - 1);
   }
+
   return reply;
 }
 
