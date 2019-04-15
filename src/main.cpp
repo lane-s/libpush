@@ -65,6 +65,7 @@ void rgb_test() {
   const int frames = 30;
   array<Pixel, 3> colors = {0x001F, 0x07E0, 0xF800};
 
+  libpush_set_display_brightness(127);
   for (int i = 0; i < frames; ++i) {
     fill_buff(pixel_buffer, colors[i % 3]);
     libpush_draw_frame(pixel_buffer);

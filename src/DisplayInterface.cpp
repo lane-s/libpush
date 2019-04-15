@@ -20,7 +20,8 @@ const unsigned char signal_shaping_pattern[signal_shaping_pattern_len] = {
 const unsigned char PUSH2_BULK_EP_OUT = 0x01;
 const unsigned int TRANSFER_TIMEOUT = 500;
 
-DisplayInterface::DisplayInterface() : push2_handle(nullptr) {}
+DisplayInterface::DisplayInterface(SysexInterface &sysex)
+    : push2_handle(nullptr), sysex(sysex) {}
 
 void DisplayInterface::connect() {
   if (this->push2_handle) {
@@ -149,6 +150,20 @@ void DisplayInterface::fill_frame(
       frame_buffer[row * ROW_LENGTH + col] = 0x00;
     }
   }
+}
+
+void DisplayInterface::set_brightness(byte brightness) {
+  midi_msg args;
+  args.push_back(brightness & 0x7F);
+  args.push_back(brightness >> 7);
+  this->sysex.sysex_call(DisplaySysex::SET_DISPLAY_BRIGHTNESS, args);
+}
+
+byte DisplayInterface::get_brightness() {
+  midi_msg args;
+  midi_msg reply =
+      this->sysex.sysex_call(DisplaySysex::GET_DISPLAY_BRIGHTNESS, args);
+  return (reply[0] | (reply[1] << 7));
 }
 
 DisplayInterface::~DisplayInterface() {}

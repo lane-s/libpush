@@ -38,11 +38,6 @@ public:
     SET_PEDAL_CURVE_ENTRIES = 0x32
   };
 
-  enum DisplaySysex : byte {
-    SET_DISPLAY_BRIGHTNESS = 0x08,
-    GET_DISPLAY_BRIGHTNESS = 0x09,
-  };
-
   SysexInterface(MidiInterface &midi);
 
   /// Send a sysex command to Push

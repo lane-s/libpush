@@ -43,7 +43,6 @@ void MidiInterface::send_message(midi_msg &message) {
   if (!this->midi_out) {
     throw runtime_error("Can't send midi message with no connected output");
   }
-
   this->midi_out->sendMessage(&message);
 }
 

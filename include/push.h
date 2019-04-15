@@ -35,6 +35,12 @@ EXPORTED bool libpush_disconnect();
 EXPORTED void libpush_draw_frame(unsigned short int (
     &pixel_buffer)[LIBPUSH_DISPLAY_HEIGHT][LIBPUSH_DISPLAY_WIDTH]);
 
+/// \param (0-127) The display brightness
+EXPORTED void libpush_set_display_brightness(unsigned char brightness);
+
+/// \returns (0-127) The current display brightness
+EXPORTED unsigned char libpush_get_display_brightness();
+
 typedef enum LibPushPadEventType {
   LP_PAD_PRESSED = 0,
   LP_PAD_RELEASED = 1,

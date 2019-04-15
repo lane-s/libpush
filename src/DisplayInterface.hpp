@@ -1,3 +1,5 @@
+#include "MidiMsg.hpp"
+#include "SysexInterface.hpp"
 #include "libusb.h"
 #include "push.h"
 #include <exception>
@@ -33,7 +35,12 @@ public:
       std::unique_ptr<libusb_device_handle,
                       std::function<void(libusb_device_handle *)>>;
 
-  DisplayInterface();
+  enum DisplaySysex : byte {
+    SET_DISPLAY_BRIGHTNESS = 0x08,
+    GET_DISPLAY_BRIGHTNESS = 0x09,
+  };
+
+  DisplayInterface(SysexInterface &sysex);
   ~DisplayInterface();
 
   /// Connect to Push's display
@@ -57,8 +64,15 @@ public:
   /// \requires The display is connected
   void draw_frame(Pixel (&pixel_buffer)[DISPLAY_HEIGHT][DISPLAY_WIDTH]);
 
+  /// \param (0-127) The display brightness
+  void set_brightness(byte brightness);
+
+  /// \returns (0-127) The current display brightness
+  byte get_brightness();
+
 private:
   DeviceHandlePtr push2_handle;
+  SysexInterface &sysex;
 
   /// Find a usb device using libusb
   ///
