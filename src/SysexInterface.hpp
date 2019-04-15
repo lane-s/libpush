@@ -1,4 +1,6 @@
 #pragma once
+#include "MidiInterface.hpp"
+#include "MidiMessageHandler.hpp"
 #include "MidiMsg.hpp"
 #include "RtMidi.h"
 #include "push.h"
@@ -11,7 +13,7 @@
 #include <unordered_set>
 
 /// Responsible for sending and handling sysex MIDI messages
-class SysexInterface {
+class SysexInterface : public MidiMessageHandler {
 public:
   enum PadSysex : byte {
     SET_PAD_PARAMETERS = 0x1B,
@@ -43,7 +45,7 @@ public:
     REQUEST_STATISTICS = 0x1A,
   };
 
-  SysexInterface(std::unique_ptr<RtMidiOut> &midi_out);
+  SysexInterface(MidiInterface &midi);
 
   /// Send a sysex command to Push
   ///
@@ -60,7 +62,7 @@ public:
   void register_command_with_reply(byte command);
 
 private:
-  std::unique_ptr<RtMidiOut> &midi_out;
+  MidiInterface &midi;
 
   /// Stores a message queue for each type of command to hold the command's replies
   std::unordered_map<byte, std::queue<midi_msg>> sysex_reply_queues;
@@ -82,7 +84,7 @@ private:
   static void poll_for_sysex_reply(byte command, std::promise<midi_msg> p,
                                    SysexInterface *self);
 
-  void handle_sysex_message(midi_msg &message);
+  void handle_message(midi_msg &message) override;
 
   // MidiInterface needs to call handle_sysex_message,
   // but that method shouldn't be public

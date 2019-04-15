@@ -1,9 +1,9 @@
 #pragma once
+#include "MidiMessageHandler.hpp"
 #include "MidiMessageHandlerFns.hpp"
 #include "MidiMessageListener.hpp"
 #include "MidiMsg.hpp"
 #include "RtMidi.h"
-#include "SysexInterface.hpp"
 #include "push.h"
 #include <iostream>
 #include <memory>
@@ -16,7 +16,6 @@
 /// These can be received by registering callback functions with this class.
 class MidiInterface {
 public:
-  SysexInterface sysex;
   MidiMessageListener<LibPushPadEvent> pad_listener;
   MidiMessageListener<LibPushButtonEvent> button_listener;
   MidiMessageListener<LibPushEncoderEvent> encoder_listener;
@@ -36,9 +35,20 @@ public:
   /// \throws An [std::runtime_error]() exception if not currently connected
   void disconnect();
 
+  /// \params handler The handler to register
+  /// \effects Passes all incoming midi messages to the handler
+  void register_handler(MidiMessageHandler *handler);
+
+  /// Sends a raw midi message to the output
+  ///
+  /// \params message A vector of 3 bytes representing the midi message
+  /// \effects Sends the message to the connected output
+  void send_message(midi_msg &message);
+
 private:
   std::unique_ptr<RtMidiIn> midi_in;
   std::unique_ptr<RtMidiOut> midi_out;
+  std::vector<MidiMessageHandler *> handlers;
 
   /// Find the given MIDI port
   ///
@@ -53,7 +63,7 @@ private:
   /// \param delta Time since the last message
   /// \param message The message bytes
   /// \param this_ptr A pointer to the instance of MidiInterface that registered the callback
-  /// \effects Calls appropriate handler method on the MidiInterface instance based on the message type
+  /// \effects Delegates message handling to handlers
   static void handle_midi_input(double delta, midi_msg *message,
                                 void *this_ptr);
 };

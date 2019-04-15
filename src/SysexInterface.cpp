@@ -11,30 +11,28 @@ midi_msg SYSEX_PREFIX = {0xF0, 0x00, 0x21, 0x1D, 0x01, 0x01};
 /// Byte marking the end of a sysex message
 byte SYSEX_SUFFIX = 0xF7;
 
-SysexInterface::SysexInterface(std::unique_ptr<RtMidiOut> &midi_out)
-    : midi_out(midi_out), commands_with_reply({
-                              PadSys::GET_AFTERTOUCH_MODE,
-                              PadSys::GET_PAD_VELOCITY_CURVE_ENTRY,
-                              PadSys::GET_SELECTED_PAD_SETTINGS,
-                              PedalSys::SAMPLE_PEDAL_DATA,
-                              MiscSys::GET_DISPLAY_BRIGHTNESS,
-                              MiscSys::SET_MIDI_MODE,
-                          }) {
+SysexInterface::SysexInterface(MidiInterface &midi)
+    : midi(midi), commands_with_reply({
+                      PadSys::GET_AFTERTOUCH_MODE,
+                      PadSys::GET_PAD_VELOCITY_CURVE_ENTRY,
+                      PadSys::GET_SELECTED_PAD_SETTINGS,
+                      PedalSys::SAMPLE_PEDAL_DATA,
+                      MiscSys::GET_DISPLAY_BRIGHTNESS,
+                      MiscSys::SET_MIDI_MODE,
+                  }) {
   for (byte command : commands_with_reply) {
     this->sysex_reply_queues[command] = queue<midi_msg>();
   }
+
+  this->midi.register_handler(this);
 }
 
 midi_msg SysexInterface::sysex_call(byte command, midi_msg args) {
-  if (!this->midi_out) {
-    throw runtime_error("Can't make sysex call when disconnected");
-  }
-
   midi_msg message(SYSEX_PREFIX);
   message.push_back(command);
   message.insert(message.end(), args.begin(), args.end());
   message.push_back(SYSEX_SUFFIX);
-  this->midi_out->sendMessage(&message);
+  this->midi.send_message(message);
 
   midi_msg reply;
   if (commands_with_reply.count(command)) {
@@ -75,7 +73,7 @@ void SysexInterface::poll_for_sysex_reply(byte command,
   }
 }
 
-void SysexInterface::handle_sysex_message(midi_msg &message) {
+void SysexInterface::handle_message(midi_msg &message) {
   byte msg_type = get_midi_type(message);
   if (msg_type != MidiMsgType::sysex) {
     return;

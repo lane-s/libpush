@@ -6,11 +6,16 @@ const string COMMON_PORT_NAME = "Ableton Push 2";
 const vector<string> USER_PORT_STRINGS = {":1", "MIDI", "User"};
 
 MidiInterface::MidiInterface()
-    : midi_in(nullptr), midi_out(nullptr), sysex(this->midi_out),
+    : midi_in(nullptr), midi_out(nullptr),
       pad_listener(&pad_message_handler_fn),
       button_listener(&button_message_handler_fn),
       encoder_listener(&encoder_message_handler_fn),
-      touch_strip_listener(&touch_strip_message_handler_fn) {}
+      touch_strip_listener(&touch_strip_message_handler_fn) {
+  this->register_handler(&pad_listener);
+  this->register_handler(&button_listener);
+  this->register_handler(&encoder_listener);
+  this->register_handler(&touch_strip_listener);
+}
 
 void MidiInterface::connect(LibPushPort port) {
   if (this->midi_in || this->midi_out) {
@@ -28,6 +33,18 @@ void MidiInterface::connect(LibPushPort port) {
   this->midi_in->ignoreTypes(false, true, true); // Don't ignore sysex messages
 
   this->midi_out->openPort(out_port);
+}
+
+void MidiInterface::register_handler(MidiMessageHandler *handler) {
+  this->handlers.push_back(handler);
+}
+
+void MidiInterface::send_message(midi_msg &message) {
+  if (!this->midi_out) {
+    throw runtime_error("Can't send midi message with no connected output");
+  }
+
+  this->midi_out->sendMessage(&message);
 }
 
 bool string_contains_any_substring(string s, vector<string> substrings) {
@@ -74,11 +91,9 @@ void MidiInterface::handle_midi_input(double delta, midi_msg *message,
   MidiInterface *self = static_cast<MidiInterface *>(this_ptr);
 
   try {
-    self->sysex.handle_sysex_message(*message);
-    self->pad_listener.handle_message(*message);
-    self->button_listener.handle_message(*message);
-    self->encoder_listener.handle_message(*message);
-    self->touch_strip_listener.handle_message(*message);
+    for (auto handler : self->handlers) {
+      handler->handle_message(*message);
+    }
   } catch (exception &ex) {
     cerr << "Exception on MIDI thread: " << ex.what() << endl;
   }
