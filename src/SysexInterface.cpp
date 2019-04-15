@@ -79,6 +79,11 @@ void SysexInterface::poll_for_sysex_reply(byte command,
 }
 
 void SysexInterface::handle_sysex_message(midi_msg &message) {
+  byte msg_type = get_midi_type(message);
+  if (msg_type != MidiMsgType::sysex) {
+    return;
+  }
+
   // Put the message args on the reply queue for the command
   auto prefix_end = message.begin() + SYSEX_PREFIX.size();
   byte command = *prefix_end;

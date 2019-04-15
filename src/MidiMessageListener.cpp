@@ -23,7 +23,7 @@ void MidiMessageListener<Event>::handle_message(midi_msg &message) {
     return;
   }
 
-  byte msg_type = *message.begin() & 0xF0;
+  byte msg_type = get_midi_type(message);
   unique_ptr<Event> result = this->handler_func(msg_type, message);
   if (result) {
     for (auto cb : this->callbacks) {

@@ -74,17 +74,11 @@ void MidiInterface::handle_midi_input(double delta, midi_msg *message,
   MidiInterface *self = static_cast<MidiInterface *>(this_ptr);
 
   try {
-    byte msg_type = *message->begin() & 0xF0;
-    switch (msg_type) {
-    case MidiMsgType::sysex:
-      self->sysex.handle_sysex_message(*message);
-      break;
-    default:
-      self->pad_listener.handle_message(*message);
-      self->button_listener.handle_message(*message);
-      self->encoder_listener.handle_message(*message);
-      self->touch_strip_listener.handle_message(*message);
-    }
+    self->sysex.handle_sysex_message(*message);
+    self->pad_listener.handle_message(*message);
+    self->button_listener.handle_message(*message);
+    self->encoder_listener.handle_message(*message);
+    self->touch_strip_listener.handle_message(*message);
   } catch (exception &ex) {
     cerr << "Exception on MIDI thread: " << ex.what() << endl;
   }

@@ -1,5 +1,7 @@
 #include "MidiMsg.hpp"
 
+byte get_midi_type(midi_msg &message) { return *message.begin() & 0xF0; }
+
 uint get_midi_number(byte msg_type, midi_msg &message) {
   switch (msg_type) {
   case MidiMsgType::note_on:

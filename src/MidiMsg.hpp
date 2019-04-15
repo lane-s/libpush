@@ -18,6 +18,7 @@ using uint = unsigned int;
 using byte = unsigned char;
 using midi_msg = std::vector<byte>;
 
+byte get_midi_type(midi_msg &message);
 uint get_midi_number(byte msg_type, midi_msg &message);
 uint get_midi_value(byte msg_type, midi_msg &message);
 #endif
