@@ -6,7 +6,9 @@
 #define LIBPUSH_DISPLAY_HEIGHT 160
 #define LIBPUSH_DISPLAY_WIDTH 960
 
+#ifdef __cplusplus
 extern "C" {
+#endif
 
 typedef enum LibPushPort { LIVE, USER } LibPushPort;
 
@@ -42,8 +44,8 @@ typedef enum LibPushPadEventType {
 /// \notes Pad coordinates go from top to bottom, left to right
 typedef struct LibPushPadEvent {
   LibPushPadEventType event_type;
-  unsigned int x; //< The x coordinate of the pad (0-7)
-  unsigned int y; //< The y coordinate of the pad (0-7)
+  unsigned int x; //< (0-7) The x coordinate of the pad
+  unsigned int y; //< (0-7) The y coordinate of the pad
   unsigned int velocity;
 } LibPushPadEvent;
 typedef void (*LibPushPadCallback)(LibPushPadEvent event, void *context);
@@ -102,7 +104,7 @@ typedef enum LibPushButtonEventType {
 typedef struct LibPushButtonEvent {
   LibPushButtonEventType event_type;
   LibPushButton button;
-  int index; //< Only relevant for buttons with type LP_DISPLAY_TOP, LP_DISPLAY_BOTTOM, or LP_SCENE_BTN(0-7)
+  int index; //< (0-7) Only relevant for buttons with type LP_DISPLAY_TOP, LP_DISPLAY_BOTTOM, or LP_SCENE_BTN
 } LibPushButtonEvent;
 typedef void (*LibPushButtonCallback)(LibPushButtonEvent event, void *context);
 
@@ -115,9 +117,9 @@ typedef enum LibPushEncoderEventType {
 /// Event fired when an encoder is turned
 typedef struct LibPushEncoderEvent {
   LibPushEncoderEventType event_type;
-  int index; //< (0-10) From left to right
+  int index; //< (0-10) Encoders are indexed from left to right
   double
-      delta; //< (-1.0 - 1.0) 1 indicates a full turn. Only relevant for the LP_ENCODER_MOVED event type.
+      delta; //< (-1.0 - 1.0) A full turn to the right has been made when the accumulated delta value is approximately 1. Only relevant for the LP_ENCODER_MOVED event type.
 } LibPushEncoderEvent;
 
 typedef void (*LibPushEncoderCallback)(LibPushEncoderEvent event,
@@ -153,6 +155,52 @@ EXPORTED void libpush_register_encoder_callback(LibPushEncoderCallback cb,
 EXPORTED void
 libpush_register_touch_strip_callback(LibPushTouchStripCallback cb,
                                       void *context);
-}
 
+typedef struct LibPushLedColor {
+  unsigned char r; //< Red (0-255)
+  unsigned char g; //< Green (0-255)
+  unsigned char b; //< Blue (0-255)
+  unsigned char w; //< White (0-255)
+} LibPushLedColor;
+
+/// Set an LED color palette entry
+///
+/// The colors of Push's LEDs are not set directly.
+/// Instead you set a color palette, and then
+/// set each led to use a color from the palette.
+/// \param color_index (0-127) the index of the color entry in the palette
+/// \param color the color to set the entry to
+/// \effects Sets the palette entry at color_index to color. Change will not be visible until reapply_color_palette is called
+EXPORTED void libpush_set_led_color_palette_entry(unsigned char color_index,
+                                                  LibPushLedColor color);
+/// Get an LED color palette entry
+///
+/// \param color_index (0-127) the idnex of the color entry in the palette to get
+/// \returns The color of the palette entry at color_index
+EXPORTED LibPushLedColor
+libpush_get_led_color_palette_entry(unsigned char color_index);
+
+/// Update the color palette to use new colors
+///
+/// \effects All leds using a palette entry that was set to a different color since the last call to reapply_color_palette will be updated to the new color
+EXPORTED void libpush_reapply_color_palette();
+
+/// Sets the brightness of all Push's leds
+///
+/// \param brightness (0-127) The desired brightness value
+EXPORTED void libpush_set_global_led_brightness(unsigned char brightness);
+
+/// Get the global brightness of Push's leds
+///
+/// \returns (0-127) The current global brightness
+EXPORTED unsigned char libpush_get_global_led_brightness();
+
+/// Sets the led pwm frequency
+///
+/// Used to avoid conflicts with the shuttering frequency of video cameras
+/// \param (20-116) The pwm frequency in Hz
+EXPORTED void libpush_set_led_pwm_freq(int freq);
+#ifdef __cplusplus
+}
+#endif
 #endif

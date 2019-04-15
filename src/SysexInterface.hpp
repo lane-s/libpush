@@ -1,6 +1,7 @@
 #pragma once
 #include "MidiMsg.hpp"
 #include "RtMidi.h"
+#include "push.h"
 #include <future>
 #include <memory>
 #include <mutex>
@@ -9,57 +10,40 @@
 #include <unordered_map>
 #include <unordered_set>
 
+/// Responsible for sending and handling sysex MIDI messages
 class SysexInterface {
 public:
-  enum LedSysex : byte {
-    set_led_color_palette_entry = 0x03,
-    get_led_color_palette_entry = 0x04,
-    reapply_color_palette = 0x05,
-    set_led_brightness = 0x06,
-    get_led_brightness = 0x07,
-    set_led_pwm_freq_correction = 0x0B,
-    set_led_white_balance = 0x14,
-    get_led_white_balance = 0x15
-  };
-
   enum PadSysex : byte {
-    set_pad_parameters = 0x1B,
-    set_aftertouch_mode = 0x1E,
-    get_aftertouch_mode = 0x1F,
-    set_pad_velocity_curve_entry = 0x20,
-    get_pad_velocity_curve_entry = 0x21,
-    select_pad_settings = 0x28,
-    get_selected_pad_settings = 0x29
+    SET_PAD_PARAMETERS = 0x1B,
+    SET_AFTERTOUCH_MODE = 0x1E,
+    GET_AFTERTOUCH_MODE = 0x1F,
+    SET_PAD_VELOCITY_CURVE_ENTRY = 0x20,
+    GET_PAD_VELOCITY_CURVE_ENTRY = 0x21,
+    SELECT_PAD_SETTINGS = 0x28,
+    GET_SELECTED_PAD_SETTINGS = 0x29
   };
 
   enum TouchStripSysex : byte {
-    set_touch_strip_configuration = 0x17,
-    get_touch_strip_configuration = 0x18,
-    set_touch_strip_leds = 0x19
+    SET_TOUCH_STRIP_CONFIGURATION = 0x17,
+    GET_TOUCH_STRIP_CONFIGURATION = 0x18,
+    SET_TOUCH_STRIP_LEDS = 0x19
   };
 
   enum PedalSysex : byte {
-    sample_pedal_data = 0x0C,
-    configure_pedal = 0x30,
-    set_pedal_curve_limits = 0x31,
-    set_pedal_curve_entries = 0x32
+    SAMPLE_PEDAL_DATA = 0x0C,
+    CONFIGURE_PEDAL = 0x30,
+    SET_PEDAL_CURVE_LIMITS = 0x31,
+    SET_PEDAL_CURVE_ENTRIES = 0x32
   };
 
   enum MiscSysex : byte {
-    set_display_brightness = 0x08,
-    get_display_brightness = 0x09,
-    set_midi_mode = 0x0A,
-    request_statistics = 0x1A,
+    SET_DISPLAY_BRIGHTNESS = 0x08,
+    GET_DISPLAY_BRIGHTNESS = 0x09,
+    SET_MIDI_MODE = 0x0A,
+    REQUEST_STATISTICS = 0x1A,
   };
 
   SysexInterface(std::unique_ptr<RtMidiOut> &midi_out);
-
-private:
-  std::unique_ptr<RtMidiOut> &midi_out;
-
-  /// Stores a message queue for each type of command to hold the command's replies
-  std::unordered_map<byte, std::queue<midi_msg>> sysex_reply_queues;
-  std::mutex reply_queues_lock;
 
   /// Send a sysex command to Push
   ///
@@ -68,6 +52,20 @@ private:
   /// \returns The command's reply if it has one
   /// \effects Sends the sysex command to Push and blocks until a reply is received
   midi_msg sysex_call(byte command, midi_msg args);
+
+  /// Register a command that expects a reply
+  ///
+  /// \params The command byte code
+  /// \effects Listens for and returns a reply for the given command type when a sysex_call is made for that type
+  void register_command_with_reply(byte command);
+
+private:
+  std::unique_ptr<RtMidiOut> &midi_out;
+
+  /// Stores a message queue for each type of command to hold the command's replies
+  std::unordered_map<byte, std::queue<midi_msg>> sysex_reply_queues;
+  std::mutex reply_queues_lock;
+  std::unordered_set<byte> commands_with_reply;
 
   /// Blocks until a reply is received for a sysex command
   ///

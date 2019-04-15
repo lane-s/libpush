@@ -1,7 +1,6 @@
 #include "SysexInterface.hpp"
 using namespace std;
 
-using LedSys = SysexInterface::LedSysex;
 using PadSys = SysexInterface::PadSysex;
 using TouchSys = SysexInterface::TouchStripSysex;
 using PedalSys = SysexInterface::PedalSysex;
@@ -12,21 +11,15 @@ midi_msg SYSEX_PREFIX = {0xF0, 0x00, 0x21, 0x1D, 0x01, 0x01};
 /// Byte marking the end of a sysex message
 byte SYSEX_SUFFIX = 0xF7;
 
-/// Set of sysex commands that provide a reply
-unordered_set<byte> commands_with_reply = {
-    LedSys::get_led_color_palette_entry,
-    LedSys::get_led_brightness,
-    LedSys::get_led_white_balance,
-    PadSys::get_aftertouch_mode,
-    PadSys::get_pad_velocity_curve_entry,
-    PadSys::get_selected_pad_settings,
-    PedalSys::sample_pedal_data,
-    MiscSys::get_display_brightness,
-    MiscSys::set_midi_mode,
-};
-
 SysexInterface::SysexInterface(std::unique_ptr<RtMidiOut> &midi_out)
-    : midi_out(midi_out) {
+    : midi_out(midi_out), commands_with_reply({
+                              PadSys::GET_AFTERTOUCH_MODE,
+                              PadSys::GET_PAD_VELOCITY_CURVE_ENTRY,
+                              PadSys::GET_SELECTED_PAD_SETTINGS,
+                              PedalSys::SAMPLE_PEDAL_DATA,
+                              MiscSys::GET_DISPLAY_BRIGHTNESS,
+                              MiscSys::SET_MIDI_MODE,
+                          }) {
   for (byte command : commands_with_reply) {
     this->sysex_reply_queues[command] = queue<midi_msg>();
   }
@@ -48,6 +41,10 @@ midi_msg SysexInterface::sysex_call(byte command, midi_msg args) {
     reply = this->get_sysex_reply(command);
   }
   return reply;
+}
+
+void SysexInterface::register_command_with_reply(byte command) {
+  commands_with_reply.insert(command);
 }
 
 midi_msg SysexInterface::get_sysex_reply(byte command) {
