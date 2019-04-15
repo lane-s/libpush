@@ -6,7 +6,7 @@ using Pixel = unsigned short int;
 PushInterface *push;
 
 PushInterface::PushInterface(LibPushPort port)
-    : sysex(midi), leds(midi, sysex) {
+    : sysex(midi), leds(midi, sysex), misc(sysex) {
   midi.connect(port);
   display.connect();
 }
@@ -94,6 +94,7 @@ void libpush_set_led_color_palette_entry(unsigned char color_index,
                                          LibPushLedColor color) {
   if (!push) {
     cerr << NOT_CONNECTED_MSG << endl;
+    return;
   }
   push->leds.set_led_color_palette_entry(color_index, color);
 }
@@ -101,6 +102,8 @@ void libpush_set_led_color_palette_entry(unsigned char color_index,
 LibPushLedColor libpush_get_led_color_palette_entry(unsigned char color_index) {
   if (!push) {
     cerr << NOT_CONNECTED_MSG << endl;
+    LibPushLedColor c;
+    return c;
   }
   return push->leds.get_led_color_palette_entry(color_index);
 }
@@ -108,6 +111,7 @@ LibPushLedColor libpush_get_led_color_palette_entry(unsigned char color_index) {
 void libpush_reapply_color_palette() {
   if (!push) {
     cerr << NOT_CONNECTED_MSG << endl;
+    return;
   }
   push->leds.reapply_color_palette();
 }
@@ -115,6 +119,7 @@ void libpush_reapply_color_palette() {
 void libpush_set_global_led_brightness(unsigned char brightness) {
   if (!push) {
     cerr << NOT_CONNECTED_MSG << endl;
+    return;
   }
   push->leds.set_global_led_brightness(brightness);
 }
@@ -122,6 +127,7 @@ void libpush_set_global_led_brightness(unsigned char brightness) {
 unsigned char libpush_get_global_led_brightness() {
   if (!push) {
     cerr << NOT_CONNECTED_MSG << endl;
+    return 0;
   }
   return push->leds.get_global_led_brightness();
 }
@@ -129,6 +135,24 @@ unsigned char libpush_get_global_led_brightness() {
 void libpush_set_led_pwm_freq(int freq) {
   if (!push) {
     cerr << NOT_CONNECTED_MSG << endl;
+    return;
   }
   return push->leds.set_led_pwm_freq(freq);
+}
+
+void libpush_set_midi_mode(LibPushMidiMode mode) {
+  if (!push) {
+    cerr << NOT_CONNECTED_MSG << endl;
+    return;
+  }
+  push->misc.set_midi_mode(mode);
+}
+
+LibPushStats libpush_get_statistics(unsigned char run_id) {
+  if (!push) {
+    cerr << NOT_CONNECTED_MSG << endl;
+    LibPushStats s;
+    return s;
+  }
+  return push->misc.get_statistics(run_id);
 }

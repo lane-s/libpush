@@ -185,6 +185,22 @@ typedef struct LibPushLedAnimation {
   LibPushLedAnimationDuration duration;
 } LibPushLedAnimation;
 
+typedef enum LibPushMidiMode {
+  LP_LIVE_MODE = 0,
+  LP_USER_MODE = 1,
+  LP_DUAL_MODE = 2
+} LibPushMidiMode;
+
+typedef enum LibPushPowerSupplyStatus {
+  LP_USB_POWER_ONLY = 0,
+  LP_EXTERNAL_POWER = 1
+} LibPushPowerSupplyStatus;
+
+typedef struct LibPushStats {
+  LibPushPowerSupplyStatus power_supply_status;
+  int uptime; //< Time since last reboot in seconds
+} LibPushStats;
+
 /// Set an LED color palette entry
 ///
 /// The colors of Push's LEDs are not set directly.
@@ -222,6 +238,16 @@ EXPORTED unsigned char libpush_get_global_led_brightness();
 /// Used to avoid conflicts with the shuttering frequency of video cameras
 /// \param (20-116) The pwm frequency in Hz
 EXPORTED void libpush_set_led_pwm_freq(int freq);
+
+/// \param mode The midi mode to set Push to
+/// \effects Setting Live or User mode will cause most midi messages to be set on only those ports
+/// \notes Only use this if you want to give control of Push up to another application
+EXPORTED void libpush_set_midi_mode(LibPushMidiMode mode);
+
+/// \param run_id A new run starts after each reboot. Use 0 to get stats about the current run
+/// \returns Power supply and uptime information
+EXPORTED LibPushStats libpush_get_statistics(unsigned char run_id);
+
 #ifdef __cplusplus
 }
 #endif

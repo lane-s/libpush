@@ -38,11 +38,9 @@ public:
     SET_PEDAL_CURVE_ENTRIES = 0x32
   };
 
-  enum MiscSysex : byte {
+  enum DisplaySysex : byte {
     SET_DISPLAY_BRIGHTNESS = 0x08,
     GET_DISPLAY_BRIGHTNESS = 0x09,
-    SET_MIDI_MODE = 0x0A,
-    REQUEST_STATISTICS = 0x1A,
   };
 
   SysexInterface(MidiInterface &midi);

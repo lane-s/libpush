@@ -1,6 +1,7 @@
 #include "DisplayInterface.hpp"
 #include "LedInterface.hpp"
 #include "MidiInterface.hpp"
+#include "MiscSysexInterface.hpp"
 #include "SysexInterface.hpp"
 #include "push.h"
 #include <exception>
@@ -15,5 +16,6 @@ public:
   DisplayInterface display;
   MidiInterface midi;
   SysexInterface sysex;
+  MiscSysexInterface misc;
   LedInterface leds;
 };

@@ -4,7 +4,6 @@ using namespace std;
 using PadSys = SysexInterface::PadSysex;
 using TouchSys = SysexInterface::TouchStripSysex;
 using PedalSys = SysexInterface::PedalSysex;
-using MiscSys = SysexInterface::MiscSysex;
 
 /// Sequence of bytes that precedes every MIDI sysex message sent or received from Push
 midi_msg SYSEX_PREFIX = {0xF0, 0x00, 0x21, 0x1D, 0x01, 0x01};
@@ -17,8 +16,6 @@ SysexInterface::SysexInterface(MidiInterface &midi)
                       PadSys::GET_PAD_VELOCITY_CURVE_ENTRY,
                       PadSys::GET_SELECTED_PAD_SETTINGS,
                       PedalSys::SAMPLE_PEDAL_DATA,
-                      MiscSys::GET_DISPLAY_BRIGHTNESS,
-                      MiscSys::SET_MIDI_MODE,
                   }) {
   for (byte command : commands_with_reply) {
     this->sysex_reply_queues[command] = queue<midi_msg>();
