@@ -8,11 +8,9 @@ const vector<string> USER_PORT_STRINGS = {":1", "MIDI", "User"};
 MidiInterface::MidiInterface()
     : midi_in(nullptr), midi_out(nullptr), pad_listener(pad_message_handler_fn),
       button_listener(button_message_handler_fn),
-      encoder_listener(encoder_message_handler_fn),
       touch_strip_listener(touch_strip_message_handler_fn) {
   this->register_handler(&pad_listener);
   this->register_handler(&button_listener);
-  this->register_handler(&encoder_listener);
   this->register_handler(&touch_strip_listener);
 }
 

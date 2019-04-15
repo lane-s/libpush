@@ -6,6 +6,7 @@
 #define LIBPUSH_DISPLAY_HEIGHT 160
 #define LIBPUSH_DISPLAY_WIDTH 960
 #define LIBPUSH_PEDAL_CURVE_ENTRIES 32
+#define LIBPUSH_PAD_MATRIX_DIM 8
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,4 +1,5 @@
 #include "DisplayInterface.hpp"
+#include "EncoderInterface.hpp"
 #include "LedInterface.hpp"
 #include "MidiInterface.hpp"
 #include "MiscSysexInterface.hpp"
@@ -20,4 +21,5 @@ public:
   MiscSysexInterface misc;
   LedInterface leds;
   PedalInterface pedals;
+  EncoderInterface encoders;
 };

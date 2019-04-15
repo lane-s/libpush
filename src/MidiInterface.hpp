@@ -8,17 +8,16 @@
 #include <iostream>
 #include <memory>
 
-/// A convenient interface to all Push functions that are accessed via Midi
+/// An API for Midi I/O with Push
 ///
 /// Sysex messages are used for most of Push's functions.
 /// Push also sends messages back to the host when the user
 /// interacts with pads, buttons, or the touch strip.
-/// These can be received by registering callback functions with this class.
+/// These can be received by registering MidiMessageHandler instances with this class.
 class MidiInterface {
 public:
   MidiMessageListener<LibPushPadEvent> pad_listener;
   MidiMessageListener<LibPushButtonEvent> button_listener;
-  MidiMessageListener<LibPushEncoderEvent> encoder_listener;
   MidiMessageListener<LibPushTouchStripEvent> touch_strip_listener;
 
   MidiInterface();

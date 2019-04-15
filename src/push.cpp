@@ -9,7 +9,7 @@ const string NOT_CONNECTED_MSG = "Please ensure libpush_connect is successful "
 
 PushInterface::PushInterface(LibPushPort port)
     : sysex(midi), display(sysex), leds(midi, sysex), misc(sysex),
-      pedals(midi, sysex) {
+      pedals(midi, sysex), encoders(midi) {
   midi.connect(port);
   display.connect();
 }
@@ -91,7 +91,7 @@ void libpush_register_encoder_callback(LibPushEncoderCallback cb,
     cerr << NOT_CONNECTED_MSG << endl;
     return;
   }
-  push->midi.encoder_listener.register_callback(cb, context);
+  push->encoders.register_callback(cb, context);
 }
 
 void libpush_register_touch_strip_callback(LibPushTouchStripCallback cb,
