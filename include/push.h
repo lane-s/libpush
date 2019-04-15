@@ -163,6 +163,28 @@ typedef struct LibPushLedColor {
   unsigned char w; //< White (0-255)
 } LibPushLedColor;
 
+/// Leds can be set to one of the following animations
+typedef enum LibPushLedAnimationType {
+  LP_NO_TRANSITION = 0,
+  LP_ONE_SHOT = 1, //< Turn the led off after the given duration
+  LP_PULSE = 6,    //< Triangle wave pulse
+  LP_BLINK = 11    //< Square wave blink
+} LibPushLedAnimationType;
+
+/// Animation duration as a subdivision of the beat
+typedef enum LibPushLedAnimationDuration {
+  LP_24TH = 0,
+  LP_16TH = 1,
+  LP_8TH = 2,
+  LP_QUARTER = 3,
+  LP_HALF = 4
+} LibPushLedAnimationDuration;
+
+typedef struct LibPushLedAnimation {
+  LibPushLedAnimationType type;
+  LibPushLedAnimationDuration duration;
+} LibPushLedAnimation;
+
 /// Set an LED color palette entry
 ///
 /// The colors of Push's LEDs are not set directly.

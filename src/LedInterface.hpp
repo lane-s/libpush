@@ -1,5 +1,6 @@
 #pragma once
 #include "MidiMsg.hpp"
+#include "RtMidi.h"
 #include "SysexInterface.hpp"
 
 /// Responsible for controlling Push's white and rgb leds
@@ -30,7 +31,7 @@ public:
     TOUCH_STRIP = 10,
   };
 
-  LedInterface(SysexInterface &sysex);
+  LedInterface(MidiInterface &midi, SysexInterface &sysex);
 
   /// Set an LED color palette entry
   ///
@@ -86,8 +87,10 @@ public:
   /// \returns (0-1024) A white balance factor
   unsigned short get_led_white_balance(LedColorGroup color_group);
 
-  // TODO Add methods to set LED color / animations
+  void set_led_color(MidiMsgType msg_type, uint midi_number,
+                     LibPushLedAnimation animation, uint color_index);
 
 private:
+  MidiInterface &midi;
   SysexInterface &sysex;
 };

@@ -1,6 +1,9 @@
 #include "LedInterface.hpp"
 
-LedInterface::LedInterface(SysexInterface &sysex) : sysex(sysex) {
+using namespace std;
+
+LedInterface::LedInterface(MidiInterface &midi, SysexInterface &sysex)
+    : sysex(sysex), midi(midi) {
   sysex.register_command_with_reply(LedSysex::GET_LED_COLOR_PALETTE_ENTRY);
   sysex.register_command_with_reply(LedSysex::GET_LED_BRIGHTNESS);
   sysex.register_command_with_reply(LedSysex::GET_LED_WHITE_BALANCE);
@@ -32,4 +35,15 @@ void LedInterface::set_led_white_balance(LedColorGroup color_group,
 
 unsigned short LedInterface::get_led_white_balance(LedColorGroup color_group) {
   return 0;
+}
+
+void LedInterface::set_led_color(MidiMsgType msg_type, uint midi_number,
+                                 LibPushLedAnimation animation,
+                                 uint color_index) {
+  midi_msg message;
+  byte animation_byte = animation.type + animation.duration;
+  message.push_back(msg_type | animation_byte);
+  message.push_back(midi_number);
+  message.push_back(color_index);
+  this->midi.send_message(message);
 }
