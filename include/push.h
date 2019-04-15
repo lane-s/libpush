@@ -5,6 +5,7 @@
 
 #define LIBPUSH_DISPLAY_HEIGHT 160
 #define LIBPUSH_DISPLAY_WIDTH 960
+#define LIBPUSH_PEDAL_CURVE_ENTRIES 32
 
 #ifdef __cplusplus
 extern "C" {
@@ -144,6 +145,27 @@ typedef struct LibPushTouchStripEvent {
 } LibPushTouchStripEvent;
 typedef void (*LibPushTouchStripCallback)(LibPushTouchStripEvent event,
                                           void *context);
+
+typedef enum LibPushPedalContact {
+  LP_PEDAL_1_RING = 0,
+  LP_PEDAL_1_TIP = 1,
+  LP_PEDAL_2_RING = 2,
+  LP_PEDAL_3_TIP = 4
+} LibPushPedalContact;
+
+typedef struct LibPushPedalEvent {
+  LibPushPedalContact contact;
+  double value; //< (0-1)
+} LibPushPedalEvent;
+
+typedef void (*LibPushPedalCallback)(LibPushPedalEvent event, void *context);
+
+typedef struct LibPushPedalSampleData {
+  unsigned short pedal_1_ring;
+  unsigned short pedal_1_tip;
+  unsigned short pedal_2_ring;
+  unsigned short pedal_2_tip;
+} LibPushPedalSampleData;
 
 /// \effects Registers a function to be called when a pad is pressed, released, or aftertouch data is received
 EXPORTED void libpush_register_pad_callback(LibPushPadCallback cb,

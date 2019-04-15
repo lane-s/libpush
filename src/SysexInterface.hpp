@@ -31,13 +31,6 @@ public:
     SET_TOUCH_STRIP_LEDS = 0x19
   };
 
-  enum PedalSysex : byte {
-    SAMPLE_PEDAL_DATA = 0x0C,
-    CONFIGURE_PEDAL = 0x30,
-    SET_PEDAL_CURVE_LIMITS = 0x31,
-    SET_PEDAL_CURVE_ENTRIES = 0x32
-  };
-
   SysexInterface(MidiInterface &midi);
 
   /// Send a sysex command to Push

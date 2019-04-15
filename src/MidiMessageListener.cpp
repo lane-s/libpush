@@ -41,3 +41,4 @@ template class MidiMessageListener<LibPushPadEvent>;
 template class MidiMessageListener<LibPushButtonEvent>;
 template class MidiMessageListener<LibPushEncoderEvent>;
 template class MidiMessageListener<LibPushTouchStripEvent>;
+template class MidiMessageListener<LibPushPedalEvent>;
