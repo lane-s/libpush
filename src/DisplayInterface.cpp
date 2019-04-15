@@ -6,19 +6,19 @@ using DeviceHandlePtr = DisplayInterface::DeviceHandlePtr;
 using DeviceListPtr =
     unique_ptr<libusb_device *, function<void(libusb_device **)>>;
 
-const unsigned int ABLETON_VENDOR_ID = 0x2982;
-const unsigned int PUSH2_PRODUCT_ID = 0x1967;
+constexpr unsigned int ABLETON_VENDOR_ID = 0x2982;
+constexpr unsigned int PUSH2_PRODUCT_ID = 0x1967;
 
 unsigned char frame_header[16] = {0xFF, 0xCC, 0xAA, 0x88, 0x00, 0x00,
                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                   0x00, 0x00, 0x00, 0x00};
 
-const unsigned char signal_shaping_pattern_len = 4;
-const unsigned char signal_shaping_pattern[signal_shaping_pattern_len] = {
+constexpr unsigned char signal_shaping_pattern_len = 4;
+constexpr unsigned char signal_shaping_pattern[signal_shaping_pattern_len] = {
     0xE7, 0xF3, 0xE7, 0xFF};
 
-const unsigned char PUSH2_BULK_EP_OUT = 0x01;
-const unsigned int TRANSFER_TIMEOUT = 500;
+constexpr unsigned char PUSH2_BULK_EP_OUT = 0x01;
+constexpr unsigned int TRANSFER_TIMEOUT = 500;
 
 DisplayInterface::DisplayInterface(SysexInterface &sysex)
     : push2_handle(nullptr), sysex(sysex) {}

@@ -62,7 +62,7 @@ void fill_buff(
 
 void rgb_test() {
   Pixel pixel_buffer[LIBPUSH_DISPLAY_HEIGHT][LIBPUSH_DISPLAY_WIDTH];
-  const int frames = 30;
+  constexpr int frames = 30;
   array<Pixel, 3> colors = {0x001F, 0x07E0, 0xF800};
 
   libpush_set_display_brightness(127);

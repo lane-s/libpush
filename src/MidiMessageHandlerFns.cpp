@@ -4,8 +4,8 @@
 
 using namespace std;
 
-const uint PAD_MATRIX_DIM = 8;
-const uint FIRST_PAD_N = 36;
+constexpr uint PAD_MATRIX_DIM = 8;
+constexpr uint FIRST_PAD_N = 36;
 
 unique_ptr<LibPushPadEvent> pad_message_handler_fn(byte msg_type,
                                                    midi_msg &message) {
@@ -48,9 +48,9 @@ tuple<uint, uint> pad_number_to_coordinates(uint n) {
   return make_tuple(x, y);
 }
 
-const uint TOP_BTN_ROW_START = 102;
-const uint BOTTOM_BTN_ROW_START = 20;
-const uint SCENE_BTN_COL_START = 43;
+constexpr uint TOP_BTN_ROW_START = 102;
+constexpr uint BOTTOM_BTN_ROW_START = 20;
+constexpr uint SCENE_BTN_COL_START = 43;
 
 unordered_set<uint> push_btn_numbers = {
     LibPushButton::LP_PLAY_BTN,        LibPushButton::LP_RECORD_BTN,
@@ -111,8 +111,8 @@ unique_ptr<LibPushButtonEvent> button_message_handler_fn(byte msg_type,
   return event;
 }
 
-const uint TOUCH_STRIP_NN = 12;
-const uint TOUCH_STRIP_CC = 1;
+constexpr uint TOUCH_STRIP_NN = 12;
+constexpr uint TOUCH_STRIP_CC = 1;
 
 unique_ptr<LibPushTouchStripEvent>
 touch_strip_message_handler_fn(byte msg_type, midi_msg &message) {
