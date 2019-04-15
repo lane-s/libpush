@@ -3,18 +3,22 @@
 using namespace std;
 using Pixel = unsigned short int;
 
+PushInterface *push;
+
+PushInterface::PushInterface(LibPushPort port)
+    : sysex(midi), leds(midi, sysex) {
+  midi.connect(port);
+  display.connect();
+}
+
+PushInterface::~PushInterface() {
+  midi.disconnect();
+  display.disconnect();
+}
+
 bool libpush_connect(LibPushPort port) {
   try {
-    midi_interface = new MidiInterface();
-    midi_interface->connect(port);
-  } catch (exception &ex) {
-    cout << ex.what() << endl;
-    return false;
-  }
-
-  try {
-    display_interface = new DisplayInterface();
-    display_interface->connect();
+    push = new PushInterface(port);
   } catch (exception &ex) {
     cerr << ex.what() << endl;
     return false;
@@ -24,14 +28,13 @@ bool libpush_connect(LibPushPort port) {
 }
 
 bool libpush_disconnect() {
-  if (!display_interface || !midi_interface) {
+  if (!push) {
+    cerr << "Disconnecting when not connected" << endl;
     return false;
   }
 
   try {
-    display_interface->disconnect();
-    midi_interface->disconnect();
-    return true;
+    delete push;
   } catch (exception &ex) {
     cerr << ex.what() << endl;
     return false;
@@ -41,7 +44,7 @@ bool libpush_disconnect() {
 void libpush_draw_frame(
     Pixel (&buffer)[LIBPUSH_DISPLAY_HEIGHT][LIBPUSH_DISPLAY_WIDTH]) {
   try {
-    display_interface->draw_frame(buffer);
+    push->display.draw_frame(buffer);
   } catch (exception &ex) {
     cerr << ex.what() << endl;
   }
@@ -51,35 +54,35 @@ const string CALLBACK_ERROR_MSG = "Ensure libpush_connect is successful before "
                                   "attempting to register callbacks";
 
 void libpush_register_pad_callback(LibPushPadCallback cb, void *context) {
-  if (!display_interface || !midi_interface) {
+  if (!push) {
     cerr << CALLBACK_ERROR_MSG << endl;
     return;
   }
-  midi_interface->pad_listener.register_callback(cb, context);
+  push->midi.pad_listener.register_callback(cb, context);
 }
 
 void libpush_register_button_callback(LibPushButtonCallback cb, void *context) {
-  if (!display_interface || !midi_interface) {
+  if (!push) {
     cerr << CALLBACK_ERROR_MSG << endl;
     return;
   }
-  midi_interface->button_listener.register_callback(cb, context);
+  push->midi.button_listener.register_callback(cb, context);
 }
 
 void libpush_register_encoder_callback(LibPushEncoderCallback cb,
                                        void *context) {
-  if (!display_interface || !midi_interface) {
+  if (!push) {
     cerr << CALLBACK_ERROR_MSG << endl;
     return;
   }
-  midi_interface->encoder_listener.register_callback(cb, context);
+  push->midi.encoder_listener.register_callback(cb, context);
 }
 
 void libpush_register_touch_strip_callback(LibPushTouchStripCallback cb,
                                            void *context) {
-  if (!display_interface || !midi_interface) {
+  if (!push) {
     cerr << CALLBACK_ERROR_MSG << endl;
     return;
   }
-  midi_interface->touch_strip_listener.register_callback(cb, context);
+  push->midi.touch_strip_listener.register_callback(cb, context);
 }

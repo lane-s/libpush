@@ -1,9 +1,19 @@
 #include "DisplayInterface.hpp"
+#include "LedInterface.hpp"
 #include "MidiInterface.hpp"
+#include "SysexInterface.hpp"
 #include "push.h"
-#include <iostream>
 #include <exception>
+#include <iostream>
 #include <string>
 
-DisplayInterface* display_interface;
-MidiInterface* midi_interface;
+class PushInterface {
+public:
+  PushInterface(LibPushPort port);
+  ~PushInterface();
+
+  DisplayInterface display;
+  MidiInterface midi;
+  SysexInterface sysex;
+  LedInterface leds;
+};
