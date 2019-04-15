@@ -3,6 +3,7 @@
 #include "LedInterface.hpp"
 #include "MidiInterface.hpp"
 #include "MiscSysexInterface.hpp"
+#include "PadInterface.hpp"
 #include "PedalInterface.hpp"
 #include "SysexInterface.hpp"
 #include "push.h"
@@ -22,4 +23,5 @@ public:
   LedInterface leds;
   PedalInterface pedals;
   EncoderInterface encoders;
+  PadInterface pads;
 };

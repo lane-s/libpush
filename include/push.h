@@ -6,6 +6,7 @@
 #define LIBPUSH_DISPLAY_HEIGHT 160
 #define LIBPUSH_DISPLAY_WIDTH 960
 #define LIBPUSH_PEDAL_CURVE_ENTRIES 32
+#define LIBPUSH_PAD_VELOCITY_CURVE_ENTRIES 128
 #define LIBPUSH_PAD_MATRIX_DIM 8
 
 #ifdef __cplusplus
@@ -28,6 +29,17 @@ typedef struct LibPushPadEvent {
   unsigned int velocity;
 } LibPushPadEvent;
 typedef void (*LibPushPadCallback)(LibPushPadEvent event, void *context);
+
+typedef enum LibPushAftertouchMode {
+  LP_CHANNEL = 0,
+  LP_POLYPHONIC = 1,
+} LibPushAftertouchMode;
+
+typedef enum LibPushPadSensitivity {
+  LP_REGULAR_SENSITIVITY = 0,
+  LP_REDUCED_SENSITIVTIY = 1,
+  LP_LOW_SENSITIVITY = 2,
+} LibPushPadSensitivity;
 
 /// All of Push's buttons
 typedef enum LibPushButton {

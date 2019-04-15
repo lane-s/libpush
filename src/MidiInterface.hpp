@@ -16,7 +16,6 @@
 /// These can be received by registering MidiMessageHandler instances with this class.
 class MidiInterface {
 public:
-  MidiMessageListener<LibPushPadEvent> pad_listener;
   MidiMessageListener<LibPushButtonEvent> button_listener;
   MidiMessageListener<LibPushTouchStripEvent> touch_strip_listener;
 

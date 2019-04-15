@@ -15,16 +15,6 @@
 /// Responsible for sending and handling sysex MIDI messages
 class SysexInterface : public MidiMessageHandler {
 public:
-  enum PadSysex : byte {
-    SET_PAD_PARAMETERS = 0x1B,
-    SET_AFTERTOUCH_MODE = 0x1E,
-    GET_AFTERTOUCH_MODE = 0x1F,
-    SET_PAD_VELOCITY_CURVE_ENTRY = 0x20,
-    GET_PAD_VELOCITY_CURVE_ENTRY = 0x21,
-    SELECT_PAD_SETTINGS = 0x28,
-    GET_SELECTED_PAD_SETTINGS = 0x29
-  };
-
   enum TouchStripSysex : byte {
     SET_TOUCH_STRIP_CONFIGURATION = 0x17,
     GET_TOUCH_STRIP_CONFIGURATION = 0x18,

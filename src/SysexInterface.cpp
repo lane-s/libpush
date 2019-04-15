@@ -1,20 +1,12 @@
 #include "SysexInterface.hpp"
 using namespace std;
 
-using PadSys = SysexInterface::PadSysex;
-using TouchSys = SysexInterface::TouchStripSysex;
-
 /// Sequence of bytes that precedes every MIDI sysex message sent or received from Push
 midi_msg SYSEX_PREFIX = {0xF0, 0x00, 0x21, 0x1D, 0x01, 0x01};
 /// Byte marking the end of a sysex message
 byte SYSEX_SUFFIX = 0xF7;
 
-SysexInterface::SysexInterface(MidiInterface &midi)
-    : midi(midi), commands_with_reply({
-                      PadSys::GET_AFTERTOUCH_MODE,
-                      PadSys::GET_PAD_VELOCITY_CURVE_ENTRY,
-                      PadSys::GET_SELECTED_PAD_SETTINGS,
-                  }) {
+SysexInterface::SysexInterface(MidiInterface &midi) : midi(midi) {
   for (const byte &command : commands_with_reply) {
     this->sysex_reply_queues[command] = queue<midi_msg>();
   }
