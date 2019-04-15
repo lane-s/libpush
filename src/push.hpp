@@ -2,6 +2,7 @@
 #include "LedInterface.hpp"
 #include "MidiInterface.hpp"
 #include "MiscSysexInterface.hpp"
+#include "PedalInterface.hpp"
 #include "SysexInterface.hpp"
 #include "push.h"
 #include <exception>
@@ -18,4 +19,5 @@ public:
   SysexInterface sysex;
   MiscSysexInterface misc;
   LedInterface leds;
+  PedalInterface pedals;
 };

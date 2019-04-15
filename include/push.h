@@ -13,35 +13,6 @@ extern "C" {
 
 typedef enum LibPushPort { LIVE, USER } LibPushPort;
 
-/// Initialize libpush and attempt to connect to Push
-///
-/// \param port the port to use for MIDI communication (Live or User)
-/// \returns true if the connection is made, false otherwise
-/// \effects Allows other libpush functions to be called if a connection is made
-/// successfully
-/// \requires libpush is not already connected to Push
-EXPORTED bool libpush_connect(LibPushPort port);
-
-/// Disconnect and cleanup
-///
-/// \effects Disconnects from Push and cleans up after libpush
-/// \requires libpush is connected to Push
-EXPORTED bool libpush_disconnect();
-
-/// Draw a single frame to Push's display
-///
-/// \param pixel_buffer A LIBPUSH_DISPLAY_HEIGHT by LIBPUSH_DISPLAY_WIDTH array of 16bit integers representing pixels to be drawn to Push's display
-/// \effects Draws the pixels to Push's display top to bottom, left to right
-/// \requires libpush is connected to Push
-EXPORTED void libpush_draw_frame(unsigned short int (
-    &pixel_buffer)[LIBPUSH_DISPLAY_HEIGHT][LIBPUSH_DISPLAY_WIDTH]);
-
-/// \param (0-127) The display brightness
-EXPORTED void libpush_set_display_brightness(unsigned char brightness);
-
-/// \returns (0-127) The current display brightness
-EXPORTED unsigned char libpush_get_display_brightness();
-
 typedef enum LibPushPadEventType {
   LP_PAD_PRESSED = 0,
   LP_PAD_RELEASED = 1,
@@ -167,23 +138,6 @@ typedef struct LibPushPedalSampleData {
   unsigned short pedal_2_tip;
 } LibPushPedalSampleData;
 
-/// \effects Registers a function to be called when a pad is pressed, released, or aftertouch data is received
-EXPORTED void libpush_register_pad_callback(LibPushPadCallback cb,
-                                            void *context);
-
-/// \effects Registers a function to be called when a button is pressed or released
-EXPORTED void libpush_register_button_callback(LibPushButtonCallback cb,
-                                               void *context);
-
-/// \effects Registers a function to be called when an encoder is turned
-EXPORTED void libpush_register_encoder_callback(LibPushEncoderCallback cb,
-                                                void *context);
-
-/// \effects Registers a function to be called when the touch strip is pressed, moved, or released
-EXPORTED void
-libpush_register_touch_strip_callback(LibPushTouchStripCallback cb,
-                                      void *context);
-
 typedef struct LibPushLedColor {
   unsigned char r; //< Red (0-255)
   unsigned char g; //< Green (0-255)
@@ -228,6 +182,80 @@ typedef struct LibPushStats {
   LibPushPowerSupplyStatus power_supply_status;
   int uptime; //< Time since last reboot in seconds
 } LibPushStats;
+
+/// Initialize libpush and attempt to connect to Push
+///
+/// \param port the port to use for MIDI communication (Live or User)
+/// \returns true if the connection is made, false otherwise
+/// \effects Allows other libpush functions to be called if a connection is made
+/// successfully
+/// \requires libpush is not already connected to Push
+EXPORTED bool libpush_connect(LibPushPort port);
+
+/// Disconnect and cleanup
+///
+/// \effects Disconnects from Push and cleans up after libpush
+/// \requires libpush is connected to Push
+EXPORTED bool libpush_disconnect();
+
+/// Draw a single frame to Push's display
+///
+/// \param pixel_buffer A LIBPUSH_DISPLAY_HEIGHT by LIBPUSH_DISPLAY_WIDTH array of 16bit integers representing pixels to be drawn to Push's display
+/// \effects Draws the pixels to Push's display top to bottom, left to right
+/// \requires libpush is connected to Push
+EXPORTED void libpush_draw_frame(unsigned short int (
+    &pixel_buffer)[LIBPUSH_DISPLAY_HEIGHT][LIBPUSH_DISPLAY_WIDTH]);
+
+/// \param (0-127) The display brightness
+EXPORTED void libpush_set_display_brightness(unsigned char brightness);
+
+/// \returns (0-127) The current display brightness
+EXPORTED unsigned char libpush_get_display_brightness();
+
+/// \effects Registers a function to be called when a pad is pressed, released, or aftertouch data is received
+EXPORTED void libpush_register_pad_callback(LibPushPadCallback cb,
+                                            void *context);
+
+/// \effects Registers a function to be called when a button is pressed or released
+EXPORTED void libpush_register_button_callback(LibPushButtonCallback cb,
+                                               void *context);
+
+/// \effects Registers a function to be called when an encoder is turned
+EXPORTED void libpush_register_encoder_callback(LibPushEncoderCallback cb,
+                                                void *context);
+
+/// \effects Registers a function to be called when the touch strip is pressed, moved, or released
+EXPORTED void
+libpush_register_touch_strip_callback(LibPushTouchStripCallback cb,
+                                      void *context);
+
+/// \effects Registers a function to be called when Push gets new pedal data
+EXPORTED void libpush_register_pedal_callback(LibPushPedalCallback cb,
+                                              void *context);
+
+/// \returns The average value over sample_size samples
+EXPORTED LibPushPedalSampleData
+libpush_sample_pedals(unsigned char sample_size);
+
+/// \param contact Which pedal contact to configure
+/// \param enable Whether to enable or disable this contact
+EXPORTED void libpush_set_pedal_configuration(LibPushPedalContact contact,
+                                              bool enable);
+
+/// \param pedal Which contact to set the curve limits for
+/// \param heel_down The MIDI number that should be used when the pedal is all the way up (i.e. 0)
+/// \param toe_down The MIDI number that should be used when the pedal is all the way down (i.e. 127)
+/// \effects Sets the range of MIDI values that the pedal will emit based on the detected voltage
+EXPORTED void libpush_set_pedal_curve_limits(LibPushPedalContact contact,
+                                             unsigned short heel_down,
+                                             unsigned short toe_down);
+
+/// \param pedal Which contact to set the curve entries for
+/// \param entries An array of bytes representing a curve
+/// \effects After calling this function, the pedal contact will map values to the curve before emitting them
+EXPORTED void libpush_set_pedal_curve_entries(
+    LibPushPedalContact contact,
+    unsigned char (&entries)[LIBPUSH_PEDAL_CURVE_ENTRIES]);
 
 /// Set an LED color palette entry
 ///

@@ -8,7 +8,8 @@ const string NOT_CONNECTED_MSG = "Please ensure libpush_connect is successful "
                                  "before using other parts of the API";
 
 PushInterface::PushInterface(LibPushPort port)
-    : sysex(midi), display(sysex), leds(midi, sysex), misc(sysex) {
+    : sysex(midi), display(sysex), leds(midi, sysex), misc(sysex),
+      pedals(midi, sysex) {
   midi.connect(port);
   display.connect();
 }
@@ -100,6 +101,43 @@ void libpush_register_touch_strip_callback(LibPushTouchStripCallback cb,
     return;
   }
   push->midi.touch_strip_listener.register_callback(cb, context);
+}
+
+void libpush_register_pedal_callback(LibPushPedalCallback cb, void *context) {
+  if (!push) {
+    cerr << NOT_CONNECTED_MSG << endl;
+    return;
+  }
+  push->pedals.register_callback(cb, context);
+}
+
+LibPushPedalSampleData libpush_sample_pedals(unsigned char sample_size) {
+  if (!push) {
+    cerr << NOT_CONNECTED_MSG << endl;
+    LibPushPedalSampleData d;
+    return d;
+  }
+  return push->pedals.sample_pedals(sample_size);
+}
+
+void libpush_set_pedal_curve_limits(LibPushPedalContact contact,
+                                    unsigned short heel_down,
+                                    unsigned short toe_down) {
+  if (!push) {
+    cerr << NOT_CONNECTED_MSG << endl;
+    return;
+  }
+  return push->pedals.set_pedal_curve_limits(contact, heel_down, toe_down);
+}
+
+void libpush_set_pedal_curve_entries(
+    LibPushPedalContact contact,
+    unsigned char (&entries)[LIBPUSH_PEDAL_CURVE_ENTRIES]) {
+  if (!push) {
+    cerr << NOT_CONNECTED_MSG << endl;
+    return;
+  }
+  return push->pedals.set_pedal_curve_entries(contact, entries);
 }
 
 void libpush_set_led_color_palette_entry(unsigned char color_index,

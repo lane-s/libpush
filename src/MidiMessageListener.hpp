@@ -1,3 +1,4 @@
+#pragma once
 #include "MidiMessageHandler.hpp"
 #include "MidiMsg.hpp"
 #include "push.h"
