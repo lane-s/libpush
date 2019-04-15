@@ -47,7 +47,7 @@ void MidiInterface::send_message(midi_msg &message) {
 }
 
 bool string_contains_any_substring(string s, vector<string> substrings) {
-  for (auto substr : substrings) {
+  for (const auto &substr : substrings) {
     if (s.find(substr) != string::npos) {
       return true;
     }
@@ -90,7 +90,7 @@ void MidiInterface::handle_midi_input(double delta, midi_msg *message,
   MidiInterface *self = static_cast<MidiInterface *>(this_ptr);
 
   try {
-    for (auto handler : self->handlers) {
+    for (const auto &handler : self->handlers) {
       handler->handle_message(*message);
     }
   } catch (exception &ex) {

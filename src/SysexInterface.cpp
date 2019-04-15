@@ -17,7 +17,7 @@ SysexInterface::SysexInterface(MidiInterface &midi)
                       PadSys::GET_SELECTED_PAD_SETTINGS,
                       PedalSys::SAMPLE_PEDAL_DATA,
                   }) {
-  for (byte command : commands_with_reply) {
+  for (const byte &command : commands_with_reply) {
     this->sysex_reply_queues[command] = queue<midi_msg>();
   }
 

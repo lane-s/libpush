@@ -26,7 +26,7 @@ void MidiMessageListener<Event>::handle_message(midi_msg &message) {
   byte msg_type = get_midi_type(message);
   unique_ptr<Event> result = this->handler_func(msg_type, message);
   if (result) {
-    for (auto cb : this->callbacks) {
+    for (const auto &cb : this->callbacks) {
       callback fn = get<0>(cb);
       void *context = get<1>(cb);
       fn(*result, context);
