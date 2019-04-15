@@ -4,6 +4,10 @@
 #include <functional>
 #include <memory>
 
+/// A MidiMessageListener handles midi messages
+/// by calling a handler function and then
+/// calling all registered callbacks if the function
+/// doesn't return nullptr
 template <typename Event>
 class MidiMessageListener : public MidiMessageHandler {
 public:
