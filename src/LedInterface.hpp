@@ -17,7 +17,7 @@ public:
     GET_LED_WHITE_BALANCE = 0x15
   };
 
-  enum LedColorGroup {
+  enum LedColorGroup : byte {
     RGB_BTN_RED = 0,
     RGB_BTN_GREEN = 1,
     RGB_BTN_BLUE = 2,

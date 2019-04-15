@@ -86,3 +86,49 @@ void libpush_register_touch_strip_callback(LibPushTouchStripCallback cb,
   }
   push->midi.touch_strip_listener.register_callback(cb, context);
 }
+
+const string NOT_CONNECTED_MSG = "Please ensure libpush_connect is successful "
+                                 "before using other parts of the API";
+
+void libpush_set_led_color_palette_entry(unsigned char color_index,
+                                         LibPushLedColor color) {
+  if (!push) {
+    cerr << NOT_CONNECTED_MSG << endl;
+  }
+  push->leds.set_led_color_palette_entry(color_index, color);
+}
+
+LibPushLedColor libpush_get_led_color_palette_entry(unsigned char color_index) {
+  if (!push) {
+    cerr << NOT_CONNECTED_MSG << endl;
+  }
+  return push->leds.get_led_color_palette_entry(color_index);
+}
+
+void libpush_reapply_color_palette() {
+  if (!push) {
+    cerr << NOT_CONNECTED_MSG << endl;
+  }
+  push->leds.reapply_color_palette();
+}
+
+void libpush_set_global_led_brightness(unsigned char brightness) {
+  if (!push) {
+    cerr << NOT_CONNECTED_MSG << endl;
+  }
+  push->leds.set_global_led_brightness(brightness);
+}
+
+unsigned char libpush_get_global_led_brightness() {
+  if (!push) {
+    cerr << NOT_CONNECTED_MSG << endl;
+  }
+  return push->leds.get_global_led_brightness();
+}
+
+void libpush_set_led_pwm_freq(int freq) {
+  if (!push) {
+    cerr << NOT_CONNECTED_MSG << endl;
+  }
+  return push->leds.set_led_pwm_freq(freq);
+}
