@@ -246,6 +246,62 @@ libpush_register_touch_strip_callback(LibPushTouchStripCallback cb,
 EXPORTED void libpush_register_pedal_callback(LibPushPedalCallback cb,
                                               void *context);
 
+/// \param x (0-7) The row of the pad
+/// \param y (0-7) The column of the pad
+/// \param color_index (0-127) The index of the color in the palette
+/// \effects Sets the pad at (x, y) to the color in the palette at color_index
+EXPORTED void libpush_set_pad_color(unsigned char x, unsigned char y,
+                                    unsigned int color_index);
+
+/// \param color_index (0-127) The index of the color in the palette
+/// \effects Sets all pads to the color in the palette at color_index
+EXPORTED void libpush_set_global_pad_color(unsigned int color_index);
+
+/// \param x (0-7) The row of the pad
+/// \param y (0-7) The column of the pad
+/// \param color_index (0-127) The index of the color in the palette
+/// \param anim The animation to use
+/// \effects Sets the pad at (x, y) to the color in the palette at color_index and activates the specified animation
+EXPORTED void libpush_set_pad_animation(unsigned char x, unsigned char y,
+                                        unsigned int color_index,
+                                        LibPushLedAnimation anim);
+
+/// \param low The lowest weight value that will trigger a pad's aftertoucuh
+/// \param high The highest weight value that will trigger a pad's aftertoucuh
+/// \effects Sets the aftertouch thresholds for all pads
+EXPORTED void libpush_set_global_aftertouch_range(unsigned short low,
+                                                  unsigned short high);
+
+/// \param mode The aftertouch mode
+/// \effects Sets the aftertouch mode for all pads to mode
+EXPORTED void libpush_set_global_aftertouch_mode(LibPushAftertouchMode mode);
+
+/// \returns The current aftertouch mode for Push's pads
+EXPORTED LibPushAftertouchMode libpush_get_global_aftertouch_mode();
+
+/// \param entries An array representing a velocity curve
+/// \effects Uses the given velocity curve for all pads
+EXPORTED void libpush_set_global_pad_velocity_curve(
+    unsigned char (&entries)[LIBPUSH_PAD_VELOCITY_CURVE_ENTRIES]);
+
+/// \param x (0-7) The row of the pad to set the sensitivity for
+/// \param y (0-7) The column of the pad to set the sensitivity for
+/// \param sensitivity The sensitivity value to use
+/// \effects Sets the pad at (x, y) to the given sensitivity
+void libpush_set_pad_sensitivity(unsigned char x, unsigned char y,
+                                 LibPushPadSensitivity sensitivity);
+
+/// \param sensitivity The sensitivity value to use
+/// \effects Sets all pads to the given sensitivity
+EXPORTED void
+libpush_set_global_pad_sensitivity(LibPushPadSensitivity sensitivity);
+
+/// \param x (0-7) The row of the pad
+/// \param y (0-7) The column of the pad
+/// \returns The sensitivity value of the pad at (x, y)
+EXPORTED LibPushPadSensitivity libpush_get_pad_sensitivity(unsigned char x,
+                                                           unsigned char y);
+
 /// \returns The average value over sample_size samples
 EXPORTED LibPushPedalSampleData
 libpush_sample_pedals(unsigned char sample_size);

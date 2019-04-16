@@ -61,6 +61,10 @@ public:
   /// \effects Sets the pad at (x, y) to the color in the palette at color_index
   void set_pad_color(byte x, byte y, uint color_index);
 
+  /// \param color_index (0-127) The index of the color in the palette
+  /// \effects Sets all pads to the color in the palette at color_index
+  void set_global_pad_color(uint color_index);
+
   /// \param x (0-7) The row of the pad
   /// \param y (0-7) The column of the pad
   /// \param color_index (0-127) The index of the color in the palette
@@ -73,6 +77,11 @@ public:
   /// \returns The (x, y) coordinates the pad with note number n
   static std::tuple<uint, uint> pad_number_to_coordinates(uint n);
 
+  /// \param x (0-7) The row of the pad
+  /// \param y (0-7) The column of the pad
+  /// \returns n (36-99) The note number of the pad
+  static uint pad_coordinates_to_number(byte x, byte y);
+
 private:
   SysexInterface &sysex;
   LedInterface &leds;
@@ -80,5 +89,3 @@ private:
   static std::unique_ptr<LibPushPadEvent> handle_message(byte msg_type,
                                                          midi_msg &message);
 };
-
-void foo();

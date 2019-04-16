@@ -111,6 +111,53 @@ void libpush_register_pedal_callback(LibPushPedalCallback cb, void *context) {
   push->pedals.register_callback(cb, context);
 }
 
+void libpush_set_pad_color(unsigned char x, unsigned char y,
+                           unsigned int color_index) {
+  push->pads.set_pad_color(x, y, color_index);
+}
+
+void libpush_set_global_pad_color(unsigned int color_index) {
+  push->pads.set_global_pad_color(color_index);
+}
+
+void libpush_set_pad_animation(unsigned char x, unsigned char y,
+                               unsigned int color_index,
+                               LibPushLedAnimation anim) {
+  push->pads.set_pad_animation(x, y, color_index, anim);
+}
+
+void libpush_set_global_aftertouch_range(unsigned short low,
+                                         unsigned short high) {
+  push->pads.set_global_aftertouch_range(low, high);
+}
+
+void libpush_set_global_aftertouch_mode(LibPushAftertouchMode mode) {
+  push->pads.set_global_aftertouch_mode(mode);
+}
+
+LibPushAftertouchMode libpush_get_global_aftertouch_mode() {
+  return push->pads.get_global_aftertouch_mode();
+}
+
+void libpush_set_global_pad_velocity_curve(
+    unsigned char (&entries)[LIBPUSH_PAD_VELOCITY_CURVE_ENTRIES]) {
+  push->pads.set_global_pad_velocity_curve(entries);
+}
+
+void libpush_set_pad_sensitivity(unsigned char x, unsigned char y,
+                                 LibPushPadSensitivity sensitivity) {
+  push->pads.set_pad_sensitivity(x, y, sensitivity);
+}
+
+void libpush_set_global_pad_sensitivity(LibPushPadSensitivity sensitivity) {
+  return push->pads.set_global_pad_sensitivity(sensitivity);
+}
+
+LibPushPadSensitivity libpush_get_pad_sensitivity(unsigned char x,
+                                                  unsigned char y) {
+  return push->pads.get_pad_sensitivity(x, y);
+}
+
 LibPushPedalSampleData libpush_sample_pedals(unsigned char sample_size) {
   if (!push) {
     cerr << NOT_CONNECTED_MSG << endl;

@@ -6,6 +6,8 @@ PadInterface::PadInterface(MidiInterface &midi, SysexInterface &sysex,
                            LedInterface &leds)
     : sysex(sysex), leds(leds), listener(PadInterface::handle_message) {
   midi.register_handler(&this->listener);
+  sysex.register_command_with_reply(PadSysex::GET_AFTERTOUCH_MODE);
+  sysex.register_command_with_reply(PadSysex::GET_SELECTED_PAD_SETTINGS);
 }
 
 void PadInterface::register_callback(LibPushPadCallback cb, void *context) {
@@ -13,35 +15,80 @@ void PadInterface::register_callback(LibPushPadCallback cb, void *context) {
 }
 
 void PadInterface::set_global_aftertouch_range(unsigned short low,
-                                               unsigned short high) {}
+                                               unsigned short high) {
+  midi_msg args({0, 0, 0, 0, (byte)(low & 0x7F), (byte)(low >> 7),
+                 (byte)(high & 0x7F), (byte)(high >> 7)});
+  this->sysex.sysex_call(PadSysex::SET_PAD_PARAMETERS, args);
+}
 
-void PadInterface::set_global_aftertouch_mode(LibPushAftertouchMode mode) {}
+void PadInterface::set_global_aftertouch_mode(LibPushAftertouchMode mode) {
+  byte mode_byte = static_cast<byte>(mode);
+  midi_msg args({mode_byte});
+  this->sysex.sysex_call(PadSysex::SET_AFTERTOUCH_MODE, args);
+}
 
 LibPushAftertouchMode PadInterface::get_global_aftertouch_mode() {
-  LibPushAftertouchMode b;
-
-  return b;
+  LibPushAftertouchMode mode;
+  midi_msg args;
+  midi_msg reply = this->sysex.sysex_call(PadSysex::GET_AFTERTOUCH_MODE, args);
+  return static_cast<LibPushAftertouchMode>(reply[0]);
 }
 
+constexpr byte CURVE_STEP = LIBPUSH_PAD_VELOCITY_CURVE_ENTRIES / 16;
 void PadInterface::set_global_pad_velocity_curve(
-    byte (&entries)[LIBPUSH_PAD_VELOCITY_CURVE_ENTRIES]) {}
+    byte (&entries)[LIBPUSH_PAD_VELOCITY_CURVE_ENTRIES]) {
+  for (byte i = 0; i < LIBPUSH_PAD_VELOCITY_CURVE_ENTRIES; i += CURVE_STEP) {
+    midi_msg args({i});
+    for (byte j = i; j < i + CURVE_STEP; ++j) {
+      args.push_back(entries[j]);
+    }
+    sysex.sysex_call(PadSysex::SET_PAD_VELOCITY_CURVE_ENTRY, args);
+  }
+}
 
 void PadInterface::set_pad_sensitivity(byte x, byte y,
-                                       LibPushPadSensitivity sensitivity) {}
-
-void PadInterface::set_global_pad_sensitivity(
-    LibPushPadSensitivity sensitivity) {}
-
-LibPushPadSensitivity PadInterface::get_pad_sensitivity(byte x, byte y) {
-  LibPushPadSensitivity b;
-
-  return b;
+                                       LibPushPadSensitivity sensitivity) {
+  x += 1;
+  y = LIBPUSH_PAD_MATRIX_DIM - y;
+  midi_msg args({y, x, static_cast<byte>(sensitivity)});
+  sysex.sysex_call(PadSysex::SELECT_PAD_SETTINGS, args);
 }
 
-void PadInterface::set_pad_color(byte x, byte y, uint color_index) {}
+void PadInterface::set_global_pad_sensitivity(
+    LibPushPadSensitivity sensitivity) {
+  midi_msg args({0, 0, static_cast<byte>(sensitivity)});
+  sysex.sysex_call(PadSysex::SELECT_PAD_SETTINGS, args);
+}
+
+LibPushPadSensitivity PadInterface::get_pad_sensitivity(byte x, byte y) {
+  x += 1;
+  y = LIBPUSH_PAD_MATRIX_DIM - y;
+  midi_msg args({y, x});
+  midi_msg reply = sysex.sysex_call(PadSysex::GET_SELECTED_PAD_SETTINGS, args);
+  return static_cast<LibPushPadSensitivity>(reply[2]);
+}
+
+void PadInterface::set_pad_color(byte x, byte y, uint color_index) {
+  uint n = pad_coordinates_to_number(x, y);
+  LibPushLedAnimation anim;
+  anim.type = LibPushLedAnimationType::LP_NO_TRANSITION;
+  anim.duration = LibPushLedAnimationDuration::LP_24TH;
+  this->leds.set_led_color(MidiMsgType::note_on, n, anim, color_index);
+}
+
+void PadInterface::set_global_pad_color(uint color_index) {
+  for (byte x = 0; x < LIBPUSH_PAD_MATRIX_DIM; ++x) {
+    for (byte y = 0; y < LIBPUSH_PAD_MATRIX_DIM; ++y) {
+      this->set_pad_color(x, y, color_index);
+    }
+  }
+}
 
 void PadInterface::set_pad_animation(byte x, byte y, uint color_index,
-                                     LibPushLedAnimation anim) {}
+                                     LibPushLedAnimation anim) {
+  uint n = pad_coordinates_to_number(x, y);
+  this->leds.set_led_color(MidiMsgType::note_on, n, anim, color_index);
+}
 
 constexpr uint FIRST_PAD_N = 36;
 
@@ -87,4 +134,7 @@ tuple<uint, uint> PadInterface::pad_number_to_coordinates(uint n) {
   return make_tuple(x, y);
 }
 
-void test_fn() { foo(); }
+uint PadInterface::pad_coordinates_to_number(byte x, byte y) {
+  return (LIBPUSH_PAD_MATRIX_DIM - 1 - y) * LIBPUSH_PAD_MATRIX_DIM + x +
+         FIRST_PAD_N;
+}
