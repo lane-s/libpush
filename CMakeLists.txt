@@ -60,10 +60,10 @@ list(APPEND LINK_LIBS ${RTMIDI_LIBRARY})
 
 # Create push shared library
 set(SOURCE_FILES src/push.cpp src/DisplayInterface.cpp src/MidiInterface.cpp
-  src/MidiMessageListener.cpp src/MidiMessageHandlerFns.cpp src/MidiMsg.cpp
+  src/MidiMessageListener.cpp src/MidiMsg.cpp
   src/SysexInterface.cpp src/LedInterface.cpp src/MiscSysexInterface.cpp
   src/PedalInterface.cpp src/EncoderInterface.cpp src/PadInterface.cpp
-  src/TouchStripInterface.cpp)
+  src/TouchStripInterface.cpp src/ButtonInterface.cpp)
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES
   VERSION ${${PROJECT_NAME}_VERSION}

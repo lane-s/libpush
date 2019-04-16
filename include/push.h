@@ -315,6 +315,12 @@ libpush_set_global_pad_sensitivity(LibPushPadSensitivity sensitivity);
 /// \returns The sensitivity value of the pad at (x, y)
 EXPORTED LibPushPadSensitivity libpush_get_pad_sensitivity(unsigned char x,
                                                            unsigned char y);
+
+/// \param btn The button to set the color for
+/// \The index of the color in the current color palette
+EXPORTED void libpush_set_button_led_color(LibPushButton btn,
+                                           unsigned int color_index);
+
 /// \param The configuration object
 /// \effects Updates the touch strip according to the configuration flags
 EXPORTED void libpush_set_touch_strip_config(LibPushTouchStripConfig cfg);

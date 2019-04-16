@@ -1,3 +1,4 @@
+#include "ButtonInterface.hpp"
 #include "DisplayInterface.hpp"
 #include "EncoderInterface.hpp"
 #include "LedInterface.hpp"
@@ -26,4 +27,5 @@ public:
   EncoderInterface encoders;
   PadInterface pads;
   TouchStripInterface touch_strip;
+  ButtonInterface buttons;
 };

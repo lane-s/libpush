@@ -10,7 +10,7 @@ const string NOT_CONNECTED_MSG = "Please ensure libpush_connect is successful "
 PushInterface::PushInterface(LibPushPort port)
     : sysex(midi), display(sysex), leds(midi, sysex), misc(sysex),
       pedals(midi, sysex), encoders(midi), pads(midi, sysex, leds),
-      touch_strip(midi, sysex) {
+      touch_strip(midi, sysex), buttons(midi, leds) {
   midi.connect(port);
   display.connect();
 }
@@ -83,7 +83,7 @@ void libpush_register_button_callback(LibPushButtonCallback cb, void *context) {
     cerr << NOT_CONNECTED_MSG << endl;
     return;
   }
-  push->midi.button_listener.register_callback(cb, context);
+  push->buttons.register_callback(cb, context);
 }
 
 void libpush_register_encoder_callback(LibPushEncoderCallback cb,
@@ -157,6 +157,10 @@ void libpush_set_global_pad_sensitivity(LibPushPadSensitivity sensitivity) {
 LibPushPadSensitivity libpush_get_pad_sensitivity(unsigned char x,
                                                   unsigned char y) {
   return push->pads.get_pad_sensitivity(x, y);
+}
+
+void libpush_set_button_led_color(LibPushButton btn, unsigned int color_index) {
+  push->buttons.set_button_led_color(btn, color_index);
 }
 
 void libpush_set_touch_strip_config(LibPushTouchStripConfig cfg) {

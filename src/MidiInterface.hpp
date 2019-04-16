@@ -1,6 +1,5 @@
 #pragma once
 #include "MidiMessageHandler.hpp"
-#include "MidiMessageHandlerFns.hpp"
 #include "MidiMessageListener.hpp"
 #include "MidiMsg.hpp"
 #include "RtMidi.h"
@@ -16,8 +15,6 @@
 /// These can be received by registering MidiMessageHandler instances with this class.
 class MidiInterface {
 public:
-  MidiMessageListener<LibPushButtonEvent> button_listener;
-
   MidiInterface();
   ~MidiInterface();
 

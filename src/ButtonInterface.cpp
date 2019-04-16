@@ -1,14 +1,7 @@
-#include "MidiMessageHandlerFns.hpp"
-#include <iostream>
-#include <unordered_set>
-
+#include "ButtonInterface.hpp"
 using namespace std;
 
-constexpr uint TOP_BTN_ROW_START = 102;
-constexpr uint BOTTOM_BTN_ROW_START = 20;
-constexpr uint SCENE_BTN_COL_START = 43;
-
-unordered_set<uint> push_btn_numbers = {
+unordered_set<uint> ButtonInterface::button_numbers = {
     LibPushButton::LP_PLAY_BTN,        LibPushButton::LP_RECORD_BTN,
     LibPushButton::LP_AUTOMATE_BTN,    LibPushButton::LP_FIXED_LENGTH_BTN,
     LibPushButton::LP_NEW_BTN,         LibPushButton::LP_DUPLICATE_BTN,
@@ -30,8 +23,30 @@ unordered_set<uint> push_btn_numbers = {
     LibPushButton::LP_OCTAVE_DOWN_BTN, LibPushButton::LP_SHIFT_BTN,
     LibPushButton::LP_SELECT_BTN};
 
-unique_ptr<LibPushButtonEvent> button_message_handler_fn(byte msg_type,
-                                                         midi_msg &message) {
+ButtonInterface::ButtonInterface(MidiInterface &midi, LedInterface &leds)
+    : leds(leds), listener(ButtonInterface::handle_message) {
+  midi.register_handler(&this->listener);
+}
+
+void ButtonInterface::register_callback(LibPushButtonCallback cb,
+                                        void *context) {
+  this->listener.register_callback(cb, context);
+}
+
+void ButtonInterface::set_button_led_color(LibPushButton btn,
+                                           uint color_index) {
+  LibPushLedAnimation anim;
+  anim.type = LibPushLedAnimationType::LP_NO_TRANSITION;
+  anim.duration = LibPushLedAnimationDuration::LP_24TH;
+  this->leds.set_led_color(MidiMsgType::cc, btn, anim, color_index);
+}
+
+constexpr uint TOP_BTN_ROW_START = 102;
+constexpr uint BOTTOM_BTN_ROW_START = 20;
+constexpr uint SCENE_BTN_COL_START = 43;
+
+unique_ptr<LibPushButtonEvent>
+ButtonInterface::handle_message(byte msg_type, midi_msg &message) {
   if (msg_type != MidiMsgType::cc) {
     return nullptr;
   }
@@ -51,7 +66,7 @@ unique_ptr<LibPushButtonEvent> button_message_handler_fn(byte msg_type,
              btn_number > SCENE_BTN_COL_START - LIBPUSH_PAD_MATRIX_DIM) {
     event->button = LibPushButton::LP_SCENE_BTN;
     event->index = SCENE_BTN_COL_START - btn_number;
-  } else if (push_btn_numbers.count(btn_number)) {
+  } else if (ButtonInterface::button_numbers.count(btn_number)) {
     event->button = static_cast<LibPushButton>(btn_number);
     event->index = -1;
   } else {
