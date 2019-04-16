@@ -6,6 +6,7 @@
 #include "PadInterface.hpp"
 #include "PedalInterface.hpp"
 #include "SysexInterface.hpp"
+#include "TouchStripInterface.hpp"
 #include "push.h"
 #include <exception>
 #include <iostream>
@@ -24,4 +25,5 @@ public:
   PedalInterface pedals;
   EncoderInterface encoders;
   PadInterface pads;
+  TouchStripInterface touch_strip;
 };

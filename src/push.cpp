@@ -9,7 +9,8 @@ const string NOT_CONNECTED_MSG = "Please ensure libpush_connect is successful "
 
 PushInterface::PushInterface(LibPushPort port)
     : sysex(midi), display(sysex), leds(midi, sysex), misc(sysex),
-      pedals(midi, sysex), encoders(midi), pads(midi, sysex, leds) {
+      pedals(midi, sysex), encoders(midi), pads(midi, sysex, leds),
+      touch_strip(midi, sysex) {
   midi.connect(port);
   display.connect();
 }
@@ -100,7 +101,7 @@ void libpush_register_touch_strip_callback(LibPushTouchStripCallback cb,
     cerr << NOT_CONNECTED_MSG << endl;
     return;
   }
-  push->midi.touch_strip_listener.register_callback(cb, context);
+  push->touch_strip.register_callback(cb, context);
 }
 
 void libpush_register_pedal_callback(LibPushPedalCallback cb, void *context) {
@@ -156,6 +157,19 @@ void libpush_set_global_pad_sensitivity(LibPushPadSensitivity sensitivity) {
 LibPushPadSensitivity libpush_get_pad_sensitivity(unsigned char x,
                                                   unsigned char y) {
   return push->pads.get_pad_sensitivity(x, y);
+}
+
+void libpush_set_touch_strip_config(LibPushTouchStripConfig cfg) {
+  push->touch_strip.set_config(cfg);
+}
+
+LibPushTouchStripConfig libpush_get_touch_strip_config() {
+  return push->touch_strip.get_config();
+};
+
+void libpush_set_touch_strip_leds(
+    unsigned char (&brightness)[LIBPUSH_TOUCH_STRIP_LEDS]) {
+  push->touch_strip.set_leds(brightness);
 }
 
 LibPushPedalSampleData libpush_sample_pedals(unsigned char sample_size) {

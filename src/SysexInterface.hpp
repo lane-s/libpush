@@ -15,12 +15,6 @@
 /// Responsible for sending and handling sysex MIDI messages
 class SysexInterface : public MidiMessageHandler {
 public:
-  enum TouchStripSysex : byte {
-    SET_TOUCH_STRIP_CONFIGURATION = 0x17,
-    GET_TOUCH_STRIP_CONFIGURATION = 0x18,
-    SET_TOUCH_STRIP_LEDS = 0x19
-  };
-
   SysexInterface(MidiInterface &midi);
 
   /// Send a sysex command to Push

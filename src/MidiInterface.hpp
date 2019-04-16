@@ -17,7 +17,6 @@
 class MidiInterface {
 public:
   MidiMessageListener<LibPushButtonEvent> button_listener;
-  MidiMessageListener<LibPushTouchStripEvent> touch_strip_listener;
 
   MidiInterface();
   ~MidiInterface();

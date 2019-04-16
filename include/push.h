@@ -2,12 +2,14 @@
 #define LIBPUSH_H_ 1
 
 #include "exported.h"
+#include <stdbool.h>
 
 #define LIBPUSH_DISPLAY_HEIGHT 160
 #define LIBPUSH_DISPLAY_WIDTH 960
 #define LIBPUSH_PEDAL_CURVE_ENTRIES 32
 #define LIBPUSH_PAD_VELOCITY_CURVE_ENTRIES 128
 #define LIBPUSH_PAD_MATRIX_DIM 8
+#define LIBPUSH_TOUCH_STRIP_LEDS 30
 
 #ifdef __cplusplus
 extern "C" {
@@ -129,6 +131,18 @@ typedef struct LibPushTouchStripEvent {
 } LibPushTouchStripEvent;
 typedef void (*LibPushTouchStripCallback)(LibPushTouchStripEvent event,
                                           void *context);
+
+typedef struct LibPushTouchStripConfig {
+  bool
+      controlled_by_host; //< Are the touch strip leds are controlled by the hardware or by the host
+  bool led_point; //< Should the leds show as a bar or a point
+  bool
+      bar_starts_at_center; //< Should the led bar starts at the bottom or the center
+  bool
+      autoreturn; //< Should the touch strip return to a neutral value when released?
+  bool
+      autoreturn_to_center; //< Should the touch strip return to the bottom or center when released
+} LibPushTouchStripConfig;
 
 typedef enum LibPushPedalContact {
   LP_PEDAL_1_RING = 0,
@@ -301,6 +315,16 @@ libpush_set_global_pad_sensitivity(LibPushPadSensitivity sensitivity);
 /// \returns The sensitivity value of the pad at (x, y)
 EXPORTED LibPushPadSensitivity libpush_get_pad_sensitivity(unsigned char x,
                                                            unsigned char y);
+/// \param The configuration object
+/// \effects Updates the touch strip according to the configuration flags
+EXPORTED void libpush_set_touch_strip_config(LibPushTouchStripConfig cfg);
+
+/// \returns The current touch strip configuration
+EXPORTED LibPushTouchStripConfig libpush_get_touch_strip_config();
+
+/// \param brightness An array of brightness values corresponding to each led of the touch strip
+EXPORTED void libpush_set_touch_strip_leds(
+    unsigned char (&brightness)[LIBPUSH_TOUCH_STRIP_LEDS]);
 
 /// \returns The average value over sample_size samples
 EXPORTED LibPushPedalSampleData
