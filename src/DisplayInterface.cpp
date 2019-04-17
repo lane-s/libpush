@@ -33,8 +33,6 @@ void DisplayInterface::connect() {
     throw runtime_error(to_string(result) + " could not initialize libusb");
   }
 
-  libusb_set_debug(NULL, LIBUSB_LOG_LEVEL_ERROR);
-
   this->push2_handle =
       DeviceHandlePtr(this->find_device(PUSH2_PRODUCT_ID, ABLETON_VENDOR_ID),
                       [](libusb_device_handle *handle) {
