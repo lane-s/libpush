@@ -1,20 +1,23 @@
 cmake_minimum_required(VERSION 3.14.1)
 
-project (libpush)
+project (push)
 set(${PROJECT_NAME}_VERSION_MAJOR 0)
 set(${PROJECT_NAME}_VERSION_MINOR 0)
 set(${PROJECT_NAME}_VERSION "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}")
 
 include(GNUInstallDirs)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 if(WIN32)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-  add_compile_definitions(WIN_EXPORT)
+  set(CMAKE_DEBUG_POSTFIX "d")
 endif(WIN32)
+
+option(LIBPUSH_BUILD_SHARED_LIB "Compile as shared library" TRUE)
+option(LIBPUSH_BUILD_STATIC_LIB "Compile as static library" TRUE)
+set(CMAKE_BUILD_TYPE Debug)
 
 set(PRIVATE_INCLUDES)
 set(LINK_LIBS)
@@ -64,21 +67,49 @@ set(SOURCE_FILES src/push.cpp src/DisplayInterface.cpp src/MidiInterface.cpp
   src/SysexInterface.cpp src/LedInterface.cpp src/MiscSysexInterface.cpp
   src/PedalInterface.cpp src/EncoderInterface.cpp src/PadInterface.cpp
   src/TouchStripInterface.cpp src/ButtonInterface.cpp)
-add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
-set_target_properties(${PROJECT_NAME} PROPERTIES
-  VERSION ${${PROJECT_NAME}_VERSION}
-  SOVERSION 1)
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-  PRIVATE ${PRIVATE_INCLUDES})
+set(LIB_TARGETS)
+if(LIBPUSH_BUILD_SHARED_LIB)
+  add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
+  set_target_properties(${PROJECT_NAME} PROPERTIES
+    VERSION ${${PROJECT_NAME}_VERSION}
+    SOVERSION 1)
 
-# Link libpush with libusb and rtmidi
-target_link_libraries(${PROJECT_NAME} PRIVATE ${LINK_LIBS})
+  target_include_directories(${PROJECT_NAME} PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+    PRIVATE ${PRIVATE_INCLUDES})
+
+  if(WIN32)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE WIN_EXPORT)
+  endif()
+
+  # Link libpush with libusb and rtmidi
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${LINK_LIBS})
+  list(APPEND LIB_TARGETS ${PROJECT_NAME})
+endif()
+
+if(LIBPUSH_BUILD_STATIC_LIB)
+  add_library(${PROJECT_NAME}_static STATIC ${SOURCE_FILES})
+
+  set_target_properties(${PROJECT_NAME}_static PROPERTIES
+    VERSION ${${PROJECT_NAME}_VERSION})
+
+  target_include_directories(${PROJECT_NAME}_static PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+    PRIVATE ${PRIVATE_INCLUDES})
+
+  if(WIN32)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE WIN_EXPORT)
+  endif()
+
+  target_link_libraries(${PROJECT_NAME}_static PRIVATE ${LINK_LIBS})
+  list(APPEND LIB_TARGETS ${PROJECT_NAME}_static)
+endif()
 
 # Install libpush
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS ${LIB_TARGETS}
     EXPORT push-export
     ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -92,5 +123,5 @@ install(EXPORT push-export
 
 # Create test executable
 add_executable(main src/main.cpp)
-target_link_libraries(main ${PROJECT_NAME})
+target_link_libraries(main ${PROJECT_NAME}_static)
 install (TARGETS main DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
