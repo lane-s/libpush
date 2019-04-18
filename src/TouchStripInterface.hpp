@@ -1,3 +1,4 @@
+#pragma once
 #include "MidiInterface.hpp"
 #include "MidiMessageListener.hpp"
 #include "MidiMsg.hpp"

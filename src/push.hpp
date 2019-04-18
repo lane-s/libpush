@@ -1,3 +1,4 @@
+#pragma once
 #include "ButtonInterface.hpp"
 #include "DisplayInterface.hpp"
 #include "EncoderInterface.hpp"

@@ -1,3 +1,4 @@
+#pragma once
 #include "MidiMsg.hpp"
 #include "SysexInterface.hpp"
 #include "libusb.h"
@@ -8,7 +9,6 @@
 #include <memory>
 #include <string>
 
-#ifndef LIBPUSH_DISPLAY_CONSTANTS
 #define DISPLAY_CONSTANTS
 #define DISPLAY_HEIGHT LIBPUSH_DISPLAY_HEIGHT
 #define DISPLAY_WIDTH LIBPUSH_DISPLAY_WIDTH
@@ -20,7 +20,6 @@
 #define ROW_LENGTH (DISPLAY_WIDTH_BYTES + DISPLAY_PADDING_BYTES)
 /// The total length of a complete frame buffer
 #define FRAME_BUFFER_LENGTH (ROW_LENGTH * (DISPLAY_HEIGHT * 2))
-#endif
 
 /// A convenient interface to Push's display
 ///

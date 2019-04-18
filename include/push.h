@@ -1,5 +1,5 @@
 #ifndef LIBPUSH_H_
-#define LIBPUSH_H_ 1
+#define LIBPUSH_H_
 
 #include "exported.h"
 #include <stdbool.h>
